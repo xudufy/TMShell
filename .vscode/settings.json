@@ -1,0 +1,10 @@
+{
+    "C_Cpp.default.cppStandard": "c++14",
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}/3rdParty/antlr/include",
+        "${workspaceFolder}/3rdParty/boost/include/boost-1_76"
+    ],
+    "files.associations": {
+        "filesystem": "cpp"
+    },
+}
