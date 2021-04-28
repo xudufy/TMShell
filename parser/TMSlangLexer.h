@@ -13,17 +13,22 @@ namespace tmshell {
 class  TMSlangLexer : public antlr4::Lexer {
 public:
   enum {
-    BOOL = 1, CLASS = 2, ELSE = 3, END = 4, FALSE = 5, FI = 6, IF = 7, IN = 8, 
-    INT = 9, INHERITS = 10, ISNULL = 11, LOOP = 12, NEW = 13, NULLL = 14, 
-    POOL = 15, SELECT = 16, THEN = 17, TRUE = 18, WHILE = 19, COLON = 20, 
-    COMMA = 21, DOT = 22, EQUAL = 23, GEQ = 24, GTR = 25, LBRACE = 26, LEQ = 27, 
-    LESSDASH = 28, LESS = 29, LPAR = 30, MINUS = 31, NEQ = 32, PLUS = 33, 
-    RBRACE = 34, RPAR = 35, SEMICOLON = 36, SLASH = 37, STAR = 38, TILDE = 39, 
-    WS = 40, INTEGER = 41, TYPE = 42, ID = 43, STRING = 44, COMMENT = 45
+    T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
+    T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
+    T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
+    T__20 = 21, T__21 = 22, COLON = 23, POUND = 24, LEFTBRACE = 25, RIGHTBRACE = 26, 
+    RIGHTARROW = 27, TEXTARG = 28, VAR = 29, SESSION = 30, GLOBAL = 31, 
+    ID = 32, TimePointLiteral = 33, DurationLiteral = 34, DurationFragment = 35, 
+    IntegerLiteral = 36, StringLiteral = 37, WS = 38, ESCAPEDNEWLINE = 39, 
+    NEWLINE_SKIP = 40, NEWLINE = 41, ERRORCHAR = 42
   };
 
   explicit TMSlangLexer(antlr4::CharStream *input);
   ~TMSlangLexer();
+
+
+    int textArgMode = 0;
+    int skipNewline = 0;
 
   virtual std::string getGrammarFileName() const override;
   virtual const std::vector<std::string>& getRuleNames() const override;
@@ -35,6 +40,9 @@ public:
 
   virtual const std::vector<uint16_t> getSerializedATN() const override;
   virtual const antlr4::atn::ATN& getATN() const override;
+
+  virtual void action(antlr4::RuleContext *context, size_t ruleIndex, size_t actionIndex) override;
+  virtual bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;
 
 private:
   static std::vector<antlr4::dfa::DFA> _decisionToDFA;
@@ -52,8 +60,16 @@ private:
 
 
   // Individual action functions triggered by action() above.
+  void COLONAction(antlr4::RuleContext *context, size_t actionIndex);
+  void POUNDAction(antlr4::RuleContext *context, size_t actionIndex);
+  void LEFTBRACEAction(antlr4::RuleContext *context, size_t actionIndex);
+  void RIGHTBRACEAction(antlr4::RuleContext *context, size_t actionIndex);
+  void RIGHTARROWAction(antlr4::RuleContext *context, size_t actionIndex);
+  void NEWLINEAction(antlr4::RuleContext *context, size_t actionIndex);
 
   // Individual semantic predicate functions triggered by sempred() above.
+  bool TEXTARGSempred(antlr4::RuleContext *_localctx, size_t predicateIndex);
+  bool NEWLINE_SKIPSempred(antlr4::RuleContext *_localctx, size_t predicateIndex);
 
   struct Initializer {
     Initializer();

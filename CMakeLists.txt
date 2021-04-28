@@ -18,8 +18,8 @@ execute_process(COMMAND java -jar ${ANTLR_PATH}/antlr-4.9.2-complete.jar -Dlangu
 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})   
 
 #for boost
-set(Boost_USE_DEBUG_LIBS        OFF)
-set(Boost_USE_RELEASE_LIBS       ON)
+set(Boost_USE_DEBUG_LIBS        OFF) # Because antlr.lib is compiled in release mode
+set(Boost_USE_RELEASE_LIBS       ON) # Because antlr.lib is compiled in release mode
 set(Boost_USE_STATIC_LIBS        ON)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
@@ -37,6 +37,7 @@ link_directories(${Boost_LIBRARY_DIRS})
 file(GLOB parser_source CONFIGURE_DEPENDS parser/*.cpp)
 file(GLOB tmshell_source CONFIGURE_DEPENDS tmshell/*.cpp)
 file(GLOB tmshelld_source CONFIGURE_DEPENDS tmshelld/*.cpp)
+file(GLOB common_source CONFIGURE_DEPENDS common/*.cpp)
 
 add_library(parser
     OBJECT
@@ -46,6 +47,7 @@ add_library(parser
 add_executable(
     tmshell
 
+    ${common_source}
     ${tmshell_source}
     $<TARGET_OBJECTS:parser>
 )
@@ -54,6 +56,7 @@ target_link_libraries(tmshell ${Boost_LIBRARIES})
 add_executable(
     tmshelld
 
+    ${common_source}
     ${tmshelld_source}
     $<TARGET_OBJECTS:parser>
 )

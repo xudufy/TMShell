@@ -21,31 +21,35 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitClassDef(TMSlangParser::ClassDefContext *ctx) override {
+  virtual antlrcpp::Any visitExecute_line(TMSlangParser::Execute_lineContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitClassBody(TMSlangParser::ClassBodyContext *ctx) override {
+  virtual antlrcpp::Any visitMgmt_command(TMSlangParser::Mgmt_commandContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitMethod(TMSlangParser::MethodContext *ctx) override {
+  virtual antlrcpp::Any visitQuotedArg(TMSlangParser::QuotedArgContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitVariableDecl(TMSlangParser::VariableDeclContext *ctx) override {
+  virtual antlrcpp::Any visitPlainArg(TMSlangParser::PlainArgContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFormal(TMSlangParser::FormalContext *ctx) override {
+  virtual antlrcpp::Any visitSessionVarDef(TMSlangParser::SessionVarDefContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitTypeName(TMSlangParser::TypeNameContext *ctx) override {
+  virtual antlrcpp::Any visitGlobalVarDef(TMSlangParser::GlobalVarDefContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitWhileExpr(TMSlangParser::WhileExprContext *ctx) override {
+  virtual antlrcpp::Any visitTriggerDef(TMSlangParser::TriggerDefContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitMulExpr(TMSlangParser::MulExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -53,15 +57,11 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitEqlExpr(TMSlangParser::EqlExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitIfExpr(TMSlangParser::IfExprContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitTrueExpr(TMSlangParser::TrueExprContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitIsNullExpr(TMSlangParser::IsNullExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -69,11 +69,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitMultExpr(TMSlangParser::MultExprContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitFullMethodCall(TMSlangParser::FullMethodCallContext *ctx) override {
+  virtual antlrcpp::Any visitPeriodicExpr(TMSlangParser::PeriodicExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -81,7 +77,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitUMinusExpr(TMSlangParser::UMinusExprContext *ctx) override {
+  virtual antlrcpp::Any visitDurationLExpr(TMSlangParser::DurationLExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -89,51 +85,39 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitFalseExpr(TMSlangParser::FalseExprContext *ctx) override {
+  virtual antlrcpp::Any visitGroupExpr(TMSlangParser::GroupExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitNullExpr(TMSlangParser::NullExprContext *ctx) override {
+  virtual antlrcpp::Any visitTimePointLExpr(TMSlangParser::TimePointLExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitExprList(TMSlangParser::ExprListContext *ctx) override {
+  virtual antlrcpp::Any visitStringLExpr(TMSlangParser::StringLExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitEqExpr(TMSlangParser::EqExprContext *ctx) override {
+  virtual antlrcpp::Any visitLaterExpr(TMSlangParser::LaterExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitSelect(TMSlangParser::SelectContext *ctx) override {
+  virtual antlrcpp::Any visitCurrentExpr(TMSlangParser::CurrentExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitNewExpr(TMSlangParser::NewExprContext *ctx) override {
+  virtual antlrcpp::Any visitIntLExpr(TMSlangParser::IntLExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitStrExpr(TMSlangParser::StrExprContext *ctx) override {
+  virtual antlrcpp::Any visitLocalVarDefExpr(TMSlangParser::LocalVarDefExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitNotExpr(TMSlangParser::NotExprContext *ctx) override {
+  virtual antlrcpp::Any visitCallExpr(TMSlangParser::CallExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitIntExpr(TMSlangParser::IntExprContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitLocalMethodCall(TMSlangParser::LocalMethodCallContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitParenExpr(TMSlangParser::ParenExprContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitSelectAlt(TMSlangParser::SelectAltContext *ctx) override {
+  virtual antlrcpp::Any visitFieldExpr(TMSlangParser::FieldExprContext *ctx) override {
     return visitChildren(ctx);
   }
 

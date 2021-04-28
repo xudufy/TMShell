@@ -1,109 +1,72 @@
 grammar TMSlang;
 
-// Parser rules
-program                 :   classes+=classDef ;
+@lexer::members {
+  int textArgMode = 0;
+  int skipNewline = 0;
+}
 
-classDef                :   'class' className=TYPE (INHERITS inherits=TYPE)? classBody ;
+program : (execute_line|NEWLINE) +;
 
-classBody               :   '{' ((variables+=variableDecl | methods+=method))* '}' ;
-    
-method                  :   ID '(' (formals+=formal (',' formals+=formal)*)? ')' ':' type=typeName '{'  vars+=variableDecl* expr '}' ;
+execute_line : (mgmt_command | varDef | triggerDef) NEWLINE;
 
-variableDecl            :   ID ':' type=typeName ('<-' initializer=expr)? ';' ;
-                              
-formal                  :   name=ID ':' type=typeName ; 
+mgmt_command : COLON command_name=cmd_arg args+=cmd_arg*;
+cmd_arg : StringLiteral #QuotedArg
+        | TEXTARG #PlainArg
+        ;
 
-typeName                :   classType=TYPE | intType=INT | boolType=BOOL ;
+varDef : VAR ID '=' expr #SessionVarDef
+      | VAR GLOBAL ID '=' expr # GlobalVarDef
+      ;
+triggerDef : signal=expr (POUND trigger_name=cmd_arg)? RIGHTARROW action=expr;
+expr: expr ('*' | '/') expr # MulExpr
+    |expr ('+'|'-') expr # AddExpr
+    | expr ('<' | '>' |'<=' | '>=') expr # RelExpr
+    | expr ('==' | '!=') expr # EqlExpr
+    | 'if' '('expr')' expr ('else' expr)? # IfExpr
+    | 'var' ID '=' expr # LocalVarDefExpr
+    | ID '=' expr # AssignExpr
+    | expr'<<<' expr ('>>>' expr)? # PeriodicExpr
+    | expr '.' ID # FieldExpr
+    | ID '(' (expr (',' expr) *)? ')' # CallExpr
+    | LEFTBRACE  (expr ';')* RIGHTBRACE # GroupExpr
+    | ID # IDExpr
+    | '>>' expr #LaterExpr
+    | '<.>' #CurrentExpr
+    | TimePointLiteral # TimePointLExpr
+    | DurationLiteral # DurationLExpr
+    | StringLiteral # StringLExpr
+    | IntegerLiteral #IntLExpr
+    ;
 
-expr                    :   object=expr '.' methodName=ID '(' (args+=expr (',' args+=expr)*)? ')'     # FullMethodCall
-                            | methodName=ID '(' (args+=expr (',' args+=expr)*)? ')'         # LocalMethodCall
-                            | IF condition=expr THEN thenExp=expr ELSE elseExp=expr FI      # IfExpr
-                            | WHILE condition=expr LOOP action=expr POOL                    # WhileExpr
-                            | '{' (exprs+=expr ';')+ '}'                                    # ExprList
-                            | SELECT selectAlt+ END                                         # Select
-                            | NEW type=TYPE                                                 # NewExpr
-                            | <assoc=right> MINUS expr                                      # UMinusExpr
-                            | ISNULL expr                                                   # IsNullExpr
-                            | left=expr (STAR | SLASH) right=expr                           # MultExpr
-                            | left=expr (PLUS | MINUS) right=expr                           # AddExpr
-                            | left=expr (LESS | LEQ | GTR | GEQ) right=expr                 # RelExpr
-                            | <assoc=right> left=expr (EQUAL | NEQ) right=expr              # EqExpr
-                            | <assoc=right> TILDE expr                                      # NotExpr
-                            | '(' expr ')'                                                  # ParenExpr
-                            | ID '<-' expr                                                  # AssignExpr
-                            | ID                                                            # IDExpr
-                            | INTEGER                                                       # IntExpr
-                            | STRING                                                        # StrExpr
-                            | TRUE                                                          # TrueExpr
-                            | FALSE                                                         # FalseExpr
-                            | NULLL                                                          # NullExpr
-                            ;
-                            
-selectAlt                   :   expr ':' expr ';' ;
+COLON: ':' {textArgMode=1;};
+POUND: '#' {textArgMode=1;};
+LEFTBRACE: '{' {skipNewline=1;};
+RIGHTBRACE: '}' {skipNewline=0;};
+RIGHTARROW: '=>' {textArgMode=0;};
+TEXTARG: ~[ \r\n\t"]+ {textArgMode==1}?;
+VAR: 'var';
+SESSION: 'session';
+GLOBAL: 'global';
+ID: [a-zA-Z_][0-9a-zA-Z_]*;
 
-// Lexer rules:
-// We assume that reserved words are recognized by the scanner rather than just
-// recognizing an identifier and letting the parser determine the token class.
+TimePointLiteral: ((Integer ':')? (Integer ':' Integer 'T' ))? Integer ':' Integer (':' Integer)?
+                | Integer ':' Integer (':' Integer)? 'D' DAYLITERAL  
+                ;
+DurationLiteral: ([0-9]+[wdhms]) +;
 
-// Key words
-BOOL                    :   'boolean' ;
-CLASS                   :   'class' ;
-ELSE                    :   'else' ;
-END                     :   'end' ;
-FALSE                   :   'false' ;
-FI                      :   'fi' ;
-IF                      :   'if' ;
-IN                      :   'in' ;
-INT                     :   'int' ;
-INHERITS                :   'inherits' ;
-ISNULL                  :   'isnull' ;
-LOOP                    :   'loop' ;
-NEW                     :   'new' ;
-NULLL                    :   'null' ;
-POOL                    :   'pool' ;
-SELECT                  :   'select' ;
-THEN                    :   'then' ;
-TRUE                    :   'true' ;
-WHILE                   :   'while' ;
+fragment DAYLITERAL: ('Sun'|'sun'|'Mon'|'mon'|'Tue'|'tue'|'Wed'|'wed'|'Thu'|'thu'|'Fri'|'fri'|'Sat'|'sat'|'Sun'|'sun');
+DurationFragment: [0-9]+[wdhms];
+IntegerLiteral: Integer;
+fragment Integer: [0-9]+;
+StringLiteral: '"' (~[\\"\n\r] | EscapedSL)* '"';
+fragment EscapedSL: '\\\\'
+                  | '\\n'
+                  | '\\"'
+                  | '\\t'
+                  ;
 
-// Punctuation, operators, and symbols. Again, we choose to recognize multi-character
-// operators in the lexer rather than in the parser.
-COLON                   :   ':' ;
-COMMA                   :   ',' ;
-DOT                     :   '.' ;
-EQUAL                   :   '=' ;
-GEQ                     :   '>=' ;
-GTR                     :   '>' ;
-LBRACE                  :   '{' ;
-LEQ                     :   '<=' ;
-LESSDASH                :   '<-' ;
-LESS                    :   '<' ;
-LPAR                    :   '(' ;
-MINUS                   :   '-' ;
-NEQ                     :   '~=' ;
-PLUS                    :   '+' ;
-RBRACE                  :   '}' ;
-RPAR                    :   ')' ;
-SEMICOLON               :   ';' ;
-SLASH                   :   '/' ;
-STAR                    :   '*' ;
-TILDE                   :   '~' ;
-
-// Integers, Identifiers
-WS                      :   [ \t\r\n\f]+ -> skip ;
-INTEGER                 :   DIGIT+ ;
-TYPE                    :   UPPER (LETTER|UNDERSCORE|DIGIT)* ;
-ID                      :   LOWER (LETTER|UNDERSCORE|DIGIT)* ;
-STRING                  :   '"' ('\\'. | ~[\n])*? '"' ;
-
-// Comments
-COMMENT                  :  (INLINE_COMMENT|STD_COMMENT) -> skip ;
-fragment INLINE_COMMENT  :  '#' .*? ('\n'|EOF);
-fragment STD_COMMENT     :  '(*' (STD_COMMENT | .)*? '*)' ;
-fragment UNDERSCORE      :   '_' ;
-
-// Fragments
-fragment DIGIT          :   [0-9] ;
-fragment UPPER          :   [A-Z] ;
-fragment LOWER          :   [a-z] ;
-fragment LETTER         :   UPPER | LOWER ;
+WS : [ \t]+ -> skip;
+ESCAPEDNEWLINE : ('\\\n'|'\\\r\n') -> skip;
+NEWLINE_SKIP: ('\n' | '\r\n')+ {skipNewline==1}? -> skip;
+NEWLINE: '\n' | '\r\n'{textArgMode=0;};
+ERRORCHAR:.;
