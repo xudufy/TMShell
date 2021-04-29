@@ -52,6 +52,8 @@ public:
     virtual size_t getRuleIndex() const override;
     std::vector<Execute_lineContext *> execute_line();
     Execute_lineContext* execute_line(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> NEWLINE();
+    antlr4::tree::TerminalNode* NEWLINE(size_t i);
 
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
