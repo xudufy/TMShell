@@ -16,8 +16,8 @@ public:
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
-    T__20 = 21, T__21 = 22, COLON = 23, POUND = 24, LEFTBRACE = 25, RIGHTBRACE = 26, 
-    RIGHTARROW = 27, TEXTARG = 28, VAR = 29, SESSION = 30, GLOBAL = 31, 
+    T__20 = 21, T__21 = 22, COLON = 23, TEXTARG = 24, POUND = 25, LEFTBRACE = 26, 
+    RIGHTBRACE = 27, RIGHTARROW = 28, VAR = 29, SESSION = 30, GLOBAL = 31, 
     ID = 32, TimePointLiteral = 33, DurationLiteral = 34, DurationFragment = 35, 
     IntegerLiteral = 36, StringLiteral = 37, WS = 38, ESCAPEDNEWLINE = 39, 
     NEWLINE_SKIP = 40, NEWLINE = 41, ERRORCHAR = 42
@@ -27,7 +27,8 @@ public:
   ~TMSlangLexer();
 
 
-    int textArgMode = 0;
+    int textArgModeUntilNewLine = 0;
+    int textArgModeUntilSpace = 0;
     int skipNewline = 0;
 
   virtual std::string getGrammarFileName() const override;
@@ -65,6 +66,7 @@ private:
   void LEFTBRACEAction(antlr4::RuleContext *context, size_t actionIndex);
   void RIGHTBRACEAction(antlr4::RuleContext *context, size_t actionIndex);
   void RIGHTARROWAction(antlr4::RuleContext *context, size_t actionIndex);
+  void WSAction(antlr4::RuleContext *context, size_t actionIndex);
   void NEWLINEAction(antlr4::RuleContext *context, size_t actionIndex);
 
   // Individual semantic predicate functions triggered by sempred() above.

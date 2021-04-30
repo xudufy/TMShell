@@ -99,7 +99,10 @@
         "xtr1common": "cpp",
         "xtree": "cpp",
         "xutility": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "bit": "cpp",
+        "stop_token": "cpp",
+        "coroutine": "cpp"
     },
     "editor.tabSize": 2,
 }

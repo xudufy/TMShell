@@ -6,7 +6,7 @@ project(TMShell)
 set(CXX_STANDARD 14)
 
 add_compile_options(/MD /wd4251 /wd4286) # Because antlr.lib is compiled in release mode, linking to MD
-
+add_definitions(-DTEST_SERVER)
 #for antlr 4 cpp runtime
 set(ANTLR_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/antlr)
 include_directories(${ANTLR_PATH}/include)

@@ -9,9 +9,9 @@ namespace tmshell {
 
 using namespace std::chrono;
 
-
-using TimePoint=system_clock::time_point;
-using Duration=system_clock::duration;
+using Clock = std::chrono::system_clock;
+using TimePoint = Clock::time_point;
+using Duration = Clock::duration;
 
 template<typename Rep>
 struct get_type_id{};
@@ -57,7 +57,7 @@ public:
     return new_that != nullptr;
   }
 
-  IVariableValue(const std::string& type);
+  explicit IVariableValue(const std::string& type);
   virtual ~IVariableValue() = default;
   IVariableValue(const IVariableValue& that)= default;
   IVariableValue(IVariableValue&& that)= default;
@@ -82,7 +82,7 @@ private:
 
 class StructValue: public IVariableValue {
 public:
-  StructValue(const std::string&);
+  explicit StructValue(const std::string&);
   virtual ~StructValue();
   StructValue(const StructValue& that);
   StructValue(StructValue&& that);
@@ -91,10 +91,10 @@ public:
 
   static StructValue& ofPriodic(TimePoint start, TimePoint end, Duration repeat);
 
-  virtual IVariableValue* getField(const std::string& fieldName) const final ;
-  virtual bool checkField(const std::string& fieldName) const final ;
-  virtual bool addField(const std::string& fieldName, const IVariableValue* value) final ;
-  virtual bool setField(const std::string& fieldName, const IVariableValue* value) final;
+  IVariableValue* getField(const std::string& fieldName) const;
+  bool checkField(const std::string& fieldName) const;
+  bool addField(const std::string& fieldName, const IVariableValue* value);
+  bool setField(const std::string& fieldName, const IVariableValue* value);
  
   virtual std::unique_ptr<IVariableValue> copy() const override {
     return std::make_unique<StructValue>(*this);
@@ -137,5 +137,14 @@ using IntValue = SimpleVariableValue<int>;
 using StringValue = SimpleVariableValue<std::string>;
 using TimePointValue = SimpleVariableValue<TimePoint>;
 using DurationValue = SimpleVariableValue<Duration>;
+
+std::string to_string(TimePoint tp);
+TimePoint to_TimePoint(std::string in);
+
+std::string to_string(Duration dur);
+Duration to_duration(std::string in);
+
+std::string to_string(StructValue sv);
+
 
 }  // namespace tmshell

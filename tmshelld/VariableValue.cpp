@@ -37,11 +37,20 @@ StructValue::~StructValue() {
 }
 
 StructValue& StructValue::operator=(const StructValue& that) {
-  return StructValue(that);
+  this->IVariableValue::operator=(that);
+  _field.clear();
+  for (auto iter = that._field.begin(); iter!= that._field.end(); ++iter) {
+    std::string k = iter->first;
+    IVariableValue* v = iter->second.get();
+    this->_field[k] = v->copy();
+  }
+  return *this;
 }
 
 StructValue& StructValue::operator=(StructValue&& that) {
-  return StructValue(that);
+  this->IVariableValue::operator=(that);
+  _field=std::move(that._field);
+  return *this;
 }
 
 StructValue& ofPriodic(TimePoint start, TimePoint end, Duration repeat) {

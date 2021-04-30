@@ -1,7 +1,8 @@
 grammar TMSlang;
 
 @lexer::members {
-  int textArgMode = 0;
+  int textArgModeUntilNewLine = 0;
+  int textArgModeUntilSpace = 0;
   int skipNewline = 0;
 }
 
@@ -38,12 +39,12 @@ expr: expr ('*' | '/') expr # MulExpr
     | IntegerLiteral #IntLExpr
     ;
 
-COLON: ':' {textArgMode=1;};
-POUND: '#' {textArgMode=1;};
+COLON: ':' {textArgModeUntilNewLine=1;};
+TEXTARG: ~[ \n\r\t"]+ {textArgModeUntilNewLine==1 || textArgModeUntilSpace==1}?;
+POUND: '#' {textArgModeUntilSpace=1;};
 LEFTBRACE: '{' {skipNewline=1;};
 RIGHTBRACE: '}' {skipNewline=0;};
-RIGHTARROW: '=>' {textArgMode=0;};
-TEXTARG: ~[ \r\n\t"]+ {textArgMode==1}?;
+RIGHTARROW: '=>' {textArgModeUntilSpace=0;};
 VAR: 'var';
 SESSION: 'session';
 GLOBAL: 'global';
@@ -65,8 +66,8 @@ fragment EscapedSL: '\\\\'
                   | '\\t'
                   ;
 
-WS : [ \t]+ -> skip;
+WS : [ \t]+ {textArgModeUntilSpace = 0;}-> skip;
 ESCAPEDNEWLINE : ('\\\n'|'\\\r\n') -> skip;
 NEWLINE_SKIP: ('\n' | '\r\n')+ {skipNewline==1}? -> skip;
-NEWLINE: '\n' | '\r\n'{textArgMode=0;};
+NEWLINE: '\n' | '\r\n'{textArgModeUntilNewLine=0;textArgModeUntilSpace = 0;};
 ERRORCHAR:.;
