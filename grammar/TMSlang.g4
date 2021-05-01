@@ -1,8 +1,8 @@
 grammar TMSlang;
 
 @lexer::members {
-  int textArgModeUntilNewLine = 0;
-  int textArgModeUntilSpace = 0;
+  int textArgModeOneLine = 0;
+  int textArgModeOneWord = 0;
   int skipNewline = 0;
 }
 
@@ -18,15 +18,18 @@ cmd_arg : StringLiteral #QuotedArg
 varDef : VAR ID '=' expr #SessionVarDef
       | VAR GLOBAL ID '=' expr # GlobalVarDef
       ;
-triggerDef : signal=expr (POUND trigger_name=cmd_arg)? RIGHTARROW action=expr;
-expr: expr ('*' | '/') expr # MulExpr
-    |expr ('+'|'-') expr # AddExpr
+triggerDef : signal=expr (POUND trigger_name=cmd_arg)? RIGHTARROW? action+=expr (';' action+=expr)* ;
+expr: '-' expr #NegExpr
+    | '!' expr #NotExpr
+    | expr ('*' | '/') expr # MulExpr
+    | expr ('+'|'-') expr # AddExpr
     | expr ('<' | '>' |'<=' | '>=') expr # RelExpr
     | expr ('==' | '!=') expr # EqlExpr
-    | 'if' '('expr')' expr ('else' expr)? # IfExpr
-    | 'var' ID '=' expr # LocalVarDefExpr
+    | expr ('||' | '&&') expr # LogicExpr
+    | IF '('expr')' expr (ELSE expr)? # IfExpr
+    | VAR ID '=' expr # LocalVarDefExpr
     | ID '=' expr # AssignExpr
-    | expr'<<<' expr ('>>>' expr)? # PeriodicExpr
+    | expr'@' expr ('@' expr)? # PeriodicExpr
     | expr '.' ID # FieldExpr
     | ID '(' (expr (',' expr) *)? ')' # CallExpr
     | LEFTBRACE  (expr ';')* RIGHTBRACE # GroupExpr
@@ -37,17 +40,22 @@ expr: expr ('*' | '/') expr # MulExpr
     | DurationLiteral # DurationLExpr
     | StringLiteral # StringLExpr
     | IntegerLiteral #IntLExpr
+    | BoolLiteral #BoolExpr
     ;
 
-COLON: ':' {textArgModeUntilNewLine=1;};
-TEXTARG: ~[ \n\r\t"]+ {textArgModeUntilNewLine==1 || textArgModeUntilSpace==1}?;
-POUND: '#' {textArgModeUntilSpace=1;};
+COLON: ':' {textArgModeOneLine=1;};
+TEXTARG: ~[ \n\r\t"]+ {textArgModeOneLine==1 || textArgModeOneWord==1}? {textArgModeOneWord = 0;};
+IF:'if';
+ELSE:'else'; 
+POUND: '#' {textArgModeOneWord=1;};
 LEFTBRACE: '{' {skipNewline=1;};
 RIGHTBRACE: '}' {skipNewline=0;};
-RIGHTARROW: '=>' {textArgModeUntilSpace=0;};
+RIGHTARROW: '=>' {textArgModeOneWord=0;};
 VAR: 'var';
 SESSION: 'session';
 GLOBAL: 'global';
+BoolLiteral: 'true' | 'false';
+
 ID: [a-zA-Z_][0-9a-zA-Z_]*;
 
 TimePointLiteral: ((Integer ':')? (Integer ':' Integer 'T' ))? Integer ':' Integer (':' Integer)?
@@ -57,8 +65,11 @@ DurationLiteral: ([0-9]+[wdhms]) +;
 
 fragment DAYLITERAL: ('Sun'|'sun'|'Mon'|'mon'|'Tue'|'tue'|'Wed'|'wed'|'Thu'|'thu'|'Fri'|'fri'|'Sat'|'sat'|'Sun'|'sun');
 DurationFragment: [0-9]+[wdhms];
+
 IntegerLiteral: Integer;
 fragment Integer: [0-9]+;
+
+
 StringLiteral: '"' (~[\\"\n\r] | EscapedSL)* '"';
 fragment EscapedSL: '\\\\'
                   | '\\n'
@@ -66,8 +77,8 @@ fragment EscapedSL: '\\\\'
                   | '\\t'
                   ;
 
-WS : [ \t]+ {textArgModeUntilSpace = 0;}-> skip;
+WS : [ \t]+ -> skip;
 ESCAPEDNEWLINE : ('\\\n'|'\\\r\n') -> skip;
 NEWLINE_SKIP: ('\n' | '\r\n')+ {skipNewline==1}? -> skip;
-NEWLINE: '\n' | '\r\n'{textArgModeUntilNewLine=0;textArgModeUntilSpace = 0;};
+NEWLINE: '\n' | '\r\n'{textArgModeOneLine=0;textArgModeOneWord = 0;};
 ERRORCHAR:.;

@@ -57,6 +57,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitBoolExpr(TMSlangParser::BoolExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitEqlExpr(TMSlangParser::EqlExprContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -69,7 +73,15 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitLogicExpr(TMSlangParser::LogicExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitPeriodicExpr(TMSlangParser::PeriodicExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitNegExpr(TMSlangParser::NegExprContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -114,6 +126,10 @@ public:
   }
 
   virtual antlrcpp::Any visitCallExpr(TMSlangParser::CallExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitNotExpr(TMSlangParser::NotExprContext *ctx) override {
     return visitChildren(ctx);
   }
 

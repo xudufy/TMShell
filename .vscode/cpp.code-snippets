@@ -1,0 +1,7 @@
+{
+  "header": {
+  "prefix": ["header"],
+  "body": ["#pragma once", "#include<../common/common.h>", "", "namespace ${1:tmshell} {", "", "$0", "", "} // namespace $1" ],
+  "description": "tmshell header",
+}
+}

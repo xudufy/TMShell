@@ -22,9 +22,10 @@ struct get_type_id<A> { \
 };
 
 REGISTER_TYPE_ID__L(int, 0)
-REGISTER_TYPE_ID__L(std::string, 1)
-REGISTER_TYPE_ID__L(TimePoint, 2)
-REGISTER_TYPE_ID__L(Duration, 3)
+REGISTER_TYPE_ID__L(bool, 1)
+REGISTER_TYPE_ID__L(std::string, 2)
+REGISTER_TYPE_ID__L(TimePoint, 3)
+REGISTER_TYPE_ID__L(Duration, 4)
 
 #undef REGISTER_TYPE_ID__L
 
@@ -89,7 +90,7 @@ public:
   StructValue& operator=(const StructValue& that);
   StructValue& operator=(StructValue&& that);
 
-  static StructValue& ofPriodic(TimePoint start, TimePoint end, Duration repeat);
+  static StructValue ofPriodic(TimePoint start, TimePoint end, Duration repeat);
 
   IVariableValue* getField(const std::string& fieldName) const;
   bool checkField(const std::string& fieldName) const;
@@ -134,6 +135,7 @@ public:
 
 
 using IntValue = SimpleVariableValue<int>;
+using BoolValue = SimpleVariableValue<bool>;
 using StringValue = SimpleVariableValue<std::string>;
 using TimePointValue = SimpleVariableValue<TimePoint>;
 using DurationValue = SimpleVariableValue<Duration>;

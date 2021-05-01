@@ -40,13 +40,19 @@ public:
 
     virtual antlrcpp::Any visitIDExpr(TMSlangParser::IDExprContext *context) = 0;
 
+    virtual antlrcpp::Any visitBoolExpr(TMSlangParser::BoolExprContext *context) = 0;
+
     virtual antlrcpp::Any visitEqlExpr(TMSlangParser::EqlExprContext *context) = 0;
 
     virtual antlrcpp::Any visitIfExpr(TMSlangParser::IfExprContext *context) = 0;
 
     virtual antlrcpp::Any visitRelExpr(TMSlangParser::RelExprContext *context) = 0;
 
+    virtual antlrcpp::Any visitLogicExpr(TMSlangParser::LogicExprContext *context) = 0;
+
     virtual antlrcpp::Any visitPeriodicExpr(TMSlangParser::PeriodicExprContext *context) = 0;
+
+    virtual antlrcpp::Any visitNegExpr(TMSlangParser::NegExprContext *context) = 0;
 
     virtual antlrcpp::Any visitAddExpr(TMSlangParser::AddExprContext *context) = 0;
 
@@ -69,6 +75,8 @@ public:
     virtual antlrcpp::Any visitLocalVarDefExpr(TMSlangParser::LocalVarDefExprContext *context) = 0;
 
     virtual antlrcpp::Any visitCallExpr(TMSlangParser::CallExprContext *context) = 0;
+
+    virtual antlrcpp::Any visitNotExpr(TMSlangParser::NotExprContext *context) = 0;
 
     virtual antlrcpp::Any visitFieldExpr(TMSlangParser::FieldExprContext *context) = 0;
 

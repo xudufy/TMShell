@@ -2,7 +2,7 @@
 
 using namespace tmshell;
 
-const char* IVariableValue::BaseVar[] = {"int", "string", "time_point",
+const char* IVariableValue::BaseVar[] = {"int", "bool", "string", "time_point",
                                                 "duration", "periodic"};
 
 IVariableValue::IVariableValue(const std::string& type):_typeName(type) {
@@ -53,7 +53,7 @@ StructValue& StructValue::operator=(StructValue&& that) {
   return *this;
 }
 
-StructValue& ofPriodic(TimePoint start, TimePoint end, Duration repeat) {
+StructValue ofPriodic(TimePoint start, TimePoint end, Duration repeat) {
   StructValue newobj(IVariableValue::BaseVar[4]);
   newobj.addField("start", &TimePointValue(start));
   newobj.addField("end", &TimePointValue(end));
@@ -79,6 +79,7 @@ bool StructValue::addField(const std::string& fieldName, const IVariableValue* v
   } else {
     _field[fieldName] = value->copy();
   }
+  return true;
 }
 
 bool StructValue::setField(const std::string& fieldName, const IVariableValue* value) {
@@ -87,4 +88,5 @@ bool StructValue::setField(const std::string& fieldName, const IVariableValue* v
   } else {
     _field[fieldName] = value->copy();
   }
+  return true;
 }

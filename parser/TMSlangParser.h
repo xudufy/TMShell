@@ -16,11 +16,11 @@ public:
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
-    T__20 = 21, T__21 = 22, COLON = 23, TEXTARG = 24, POUND = 25, LEFTBRACE = 26, 
-    RIGHTBRACE = 27, RIGHTARROW = 28, VAR = 29, SESSION = 30, GLOBAL = 31, 
-    ID = 32, TimePointLiteral = 33, DurationLiteral = 34, DurationFragment = 35, 
-    IntegerLiteral = 36, StringLiteral = 37, WS = 38, ESCAPEDNEWLINE = 39, 
-    NEWLINE_SKIP = 40, NEWLINE = 41, ERRORCHAR = 42
+    T__20 = 21, T__21 = 22, COLON = 23, TEXTARG = 24, IF = 25, ELSE = 26, 
+    POUND = 27, LEFTBRACE = 28, RIGHTBRACE = 29, RIGHTARROW = 30, VAR = 31, 
+    SESSION = 32, GLOBAL = 33, BoolLiteral = 34, ID = 35, TimePointLiteral = 36, 
+    DurationLiteral = 37, DurationFragment = 38, IntegerLiteral = 39, StringLiteral = 40, 
+    WS = 41, ESCAPEDNEWLINE = 42, NEWLINE_SKIP = 43, NEWLINE = 44, ERRORCHAR = 45
   };
 
   enum {
@@ -171,13 +171,14 @@ public:
   public:
     TMSlangParser::ExprContext *signal = nullptr;
     TMSlangParser::Cmd_argContext *trigger_name = nullptr;
-    TMSlangParser::ExprContext *action = nullptr;
+    TMSlangParser::ExprContext *exprContext = nullptr;
+    std::vector<ExprContext *> action;
     TriggerDefContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *RIGHTARROW();
     std::vector<ExprContext *> expr();
     ExprContext* expr(size_t i);
     antlr4::tree::TerminalNode *POUND();
+    antlr4::tree::TerminalNode *RIGHTARROW();
     Cmd_argContext *cmd_arg();
 
 
@@ -219,6 +220,15 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  BoolExprContext : public ExprContext {
+  public:
+    BoolExprContext(ExprContext *ctx);
+
+    antlr4::tree::TerminalNode *BoolLiteral();
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  EqlExprContext : public ExprContext {
   public:
     EqlExprContext(ExprContext *ctx);
@@ -233,8 +243,10 @@ public:
   public:
     IfExprContext(ExprContext *ctx);
 
+    antlr4::tree::TerminalNode *IF();
     std::vector<ExprContext *> expr();
     ExprContext* expr(size_t i);
+    antlr4::tree::TerminalNode *ELSE();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -249,12 +261,31 @@ public:
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  LogicExprContext : public ExprContext {
+  public:
+    LogicExprContext(ExprContext *ctx);
+
+    std::vector<ExprContext *> expr();
+    ExprContext* expr(size_t i);
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  PeriodicExprContext : public ExprContext {
   public:
     PeriodicExprContext(ExprContext *ctx);
 
     std::vector<ExprContext *> expr();
     ExprContext* expr(size_t i);
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  NegExprContext : public ExprContext {
+  public:
+    NegExprContext(ExprContext *ctx);
+
+    ExprContext *expr();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
@@ -362,6 +393,15 @@ public:
     antlr4::tree::TerminalNode *ID();
     std::vector<ExprContext *> expr();
     ExprContext* expr(size_t i);
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  NotExprContext : public ExprContext {
+  public:
+    NotExprContext(ExprContext *ctx);
+
+    ExprContext *expr();
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
