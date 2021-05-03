@@ -11,7 +11,7 @@ public:
     std::string offendingToken;
     bool meetError = false;
 
-    virtual void syntaxError(Recognizer *recognizer, Token * offendingSymbol, size_t line, size_t charPositionInLine,
+    virtual void syntaxError(Recognizer *, Token * offendingSymbol, size_t line, size_t charPositionInLine,
       const std::string &msg, std::exception_ptr e) override {
         this->msg = std::to_string(line) + ":" + std::to_string(charPositionInLine) + ":" + msg;
         meetError = true;

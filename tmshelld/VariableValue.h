@@ -33,8 +33,24 @@ template<typename Rep>
 constexpr int get_type_id_v = get_type_id<Rep>::value;
 
 
-
 class StructValue;
+
+inline std::string to_string(int i) {
+  return std::to_string(i);
+}
+
+inline std::string to_string(const std::string & i) {
+  return i;
+}
+
+std::string to_string(TimePoint const & tp);
+TimePoint to_TimePoint(std::string const & in);
+
+void find_next_occurance(tm ref, tm & dst); //exported for test purpose.
+
+std::string to_string(Duration const & dur);
+Duration to_Duration(std::string const & in);
+std::string to_string(StructValue const & sv);
 
 class IVariableValue {
 public:
@@ -75,6 +91,8 @@ public:
 
   virtual std::unique_ptr<IVariableValue> copy() const = 0;
 
+  virtual std::string to_string() = 0;
+
 private:
   std::string _typeName;
 };
@@ -94,12 +112,18 @@ public:
 
   IVariableValue* getField(const std::string& fieldName) const;
   bool checkField(const std::string& fieldName) const;
-  bool addField(const std::string& fieldName, const IVariableValue* value);
-  bool setField(const std::string& fieldName, const IVariableValue* value);
+  bool addField(const std::string& fieldName, const IVariableValue & value);
+  bool setField(const std::string& fieldName, const IVariableValue & value);
  
   virtual std::unique_ptr<IVariableValue> copy() const override {
     return std::make_unique<StructValue>(*this);
   }
+
+  virtual std::string to_string() {
+    return tmshell::to_string(*this);
+  }
+
+  friend std::string to_string(StructValue const &);
 
 private:
   std::unordered_map<std::string, std::unique_ptr<IVariableValue>> _field;
@@ -112,6 +136,7 @@ template<typename Rep, typename = typename std::enable_if_t<
   && std::is_copy_constructible<Rep>::value>>
 class SimpleVariableValue : public IVariableValue {
 public:
+  using value_type = Rep;
 
   SimpleVariableValue(const Rep& r): IVariableValue(getBaseVarName<Rep>()) {
     _data = r;
@@ -122,11 +147,15 @@ public:
   SimpleVariableValue& operator=(const SimpleVariableValue& that) = default;
   SimpleVariableValue& operator=(SimpleVariableValue&& that) = default;
 
-  Rep& get() { return _data; }
+  Rep get() { return _data; }
   void set(const Rep& r) { _data = r; }
 
   virtual std::unique_ptr<IVariableValue> copy() const override {
     return std::make_unique<SimpleVariableValue<Rep>>(*this);
+  }
+
+  virtual std::string to_string() {
+    return tmshell::to_string(_data);
   }
 
  private:
@@ -140,13 +169,23 @@ using StringValue = SimpleVariableValue<std::string>;
 using TimePointValue = SimpleVariableValue<TimePoint>;
 using DurationValue = SimpleVariableValue<Duration>;
 
-std::string to_string(TimePoint tp);
-TimePoint to_TimePoint(std::string in);
+class VoidValue: public IVariableValue {
+public:
+  VoidValue(): IVariableValue("void"){}
+  virtual ~VoidValue() = default;
+  VoidValue(const VoidValue& that)= default;
+  VoidValue(VoidValue&& that) = default;
+  VoidValue& operator=(const VoidValue& that) = default;
+  VoidValue& operator=(VoidValue&& that) = default;
 
-std::string to_string(Duration dur);
-Duration to_duration(std::string in);
+  virtual std::unique_ptr<IVariableValue> copy() const override {
+    return std::make_unique<VoidValue>(*this);
+  }
 
-std::string to_string(StructValue sv);
+  virtual std::string to_string() {
+    return "<void>";
+  }
+};
 
 
 }  // namespace tmshell

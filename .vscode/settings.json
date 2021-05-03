@@ -105,4 +105,5 @@
         "coroutine": "cpp"
     },
     "editor.tabSize": 2,
+    "C_Cpp.default.compilerArgs": ["-DTMSHELLD_OUTPUT_TO_CONSOLE"],
 }

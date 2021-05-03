@@ -5,7 +5,7 @@ project(TMShell)
 
 set(CXX_STANDARD 14)
 
-add_compile_options(/MD /wd4251) # We will always link to Release Mode dynamic msvcrt.
+add_compile_options(/MD /W4 /wd4458 /wd4996 /wd4251) # We will always link to Release Mode dynamic msvcrt.
 
 add_definitions(-DTEST_SERVER) 
 
@@ -31,23 +31,29 @@ set(Boost_USE_STATIC_RUNTIME    OFF)
 set(Boost_USE_DEBUG_RUNTIME     OFF)
 set(Boost_COMPILER vc142)
 set(Boost_ADDITIONAL_VERSIONS "1.76" "1.76.0" "1.78" "1.78.0" "1.79" "1.79.0")
-find_package(Boost 1.76.0 REQUIRED COMPONENTS beast filesystem system PATHS 3rdParty)
+find_package(Boost 1.76.0 REQUIRED COMPONENTS filesystem system PATHS 3rdParty)
 if (NOT Boost_FOUND)
   message(FATAL_ERROR "Fatal error: Boost (version >= 1.76) required.")
 endif()
 
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
+link_libraries(${Boost_LIBRARIES})
 
 file(GLOB parser_source LIST_DIRECTORIES false CONFIGURE_DEPENDS parser/*.cpp)
 file(GLOB tmshell_source LIST_DIRECTORIES false CONFIGURE_DEPENDS tmshell/*.cpp)
 file(GLOB tmshelld_source LIST_DIRECTORIES false CONFIGURE_DEPENDS tmshelld/*.cpp)
 file(GLOB common_source LIST_DIRECTORIES false CONFIGURE_DEPENDS common/*.cpp)
 
+list(REMOVE_ITEM tmshelld_source ${CMAKE_CURRENT_SOURCE_DIR}/tmshelld/main.cpp) #in order to build tests.
+
+add_definitions(-DTMSHELLD_OUTPUT_TO_CONSOLE)
+
 add_library(parser
     OBJECT
     ${parser_source}
 )
+target_compile_options(parser PRIVATE /wd4100)
 
 add_executable(
     tmshell
@@ -56,13 +62,35 @@ add_executable(
     ${tmshell_source}
     $<TARGET_OBJECTS:parser>
 )
-target_link_libraries(tmshell ${Boost_LIBRARIES})
+
+add_library(
+    tmshelld_obj
+    OBJECT
+
+    ${common_source}
+    ${tmshelld_source}
+)
 
 add_executable(
     tmshelld
 
-    ${common_source}
-    ${tmshelld_source}
+    tmshelld/main.cpp
     $<TARGET_OBJECTS:parser>
+    $<TARGET_OBJECTS:tmshelld_obj>
 )
-target_link_libraries(tmshelld ${Boost_LIBRARIES})
+
+add_executable(
+    time_func_test
+
+    test/time_func_test.cpp
+    $<TARGET_OBJECTS:parser>
+    $<TARGET_OBJECTS:tmshelld_obj>
+)
+
+add_executable(
+    windows_test
+
+    test/windows_test.cpp
+    $<TARGET_OBJECTS:parser>
+    $<TARGET_OBJECTS:tmshelld_obj>
+)

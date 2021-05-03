@@ -130,10 +130,6 @@ ls global //global variable
 remove signal <signal index>
 remove trigger <trigger index>
 
-//Dry mode for a trigger, only print the action that would be performed but do not perform them really. <trigger index> can be gotten from ls trigger.
-dry_run <trigger index>
-reset dry <trigger index>
-
 //execute a file of TimeMachine Code
 run <file path>
 
@@ -144,15 +140,16 @@ signal <String signal>
 
 ### Built-in method
 These methods are provided for the `action`.
-```c++
-alarm()
-shell(<filePath>) //run a shell script
+```java
+alert()
+//shell(<filePath>) //run a shell script
 signal(<string signal>) //trigger a string signal
-exec(<filePath>) //double fork and run a program
+shell_open(<filePath>) //double fork and run a program
 msgbox(<any thing>) // pop up a msgbox for output some info.
+log(<any thing>) // write something to log. Default behaviour: write to console.
 run(<filePath>) // run another TimeMachine script.
-dup(<signal>) // add this action to another signal.
 disconnect() //remove this action from this signal.
+return() // exit current action.
 ```
 
 ### How to make a custom function in TimeMachine
@@ -194,3 +191,6 @@ expr = expr '+' expr
     | IntegerLiteral
 
 ```
+
+##Log
+1. Anything can be implicitly transfrom to string. All other type casting are forbidden.

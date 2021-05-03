@@ -110,7 +110,12 @@ int main(int argc, char* argv[]) {
     content.reserve(4096);
     for (int i = 1; i < argc; i++) {
       std::ifstream inputFile;
-      inputFile.open(argv[i]);
+      try {
+        inputFile.open(argv[i]); 
+      } catch (std::exception const & e) {
+        std::cerr<<e.what()<<std::endl;
+        exit(-1);
+      }
       std::stringstream ss;
       ss << inputFile.rdbuf();
       content += ss.str();

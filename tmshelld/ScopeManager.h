@@ -1,33 +1,28 @@
 #pragma once
 #include "../common/common.h"
 #include <boost/asio.hpp>
-#include <chrono>
+
 
 #include "VariableValue.h"
+#include "GlobalScope.h"
 
 namespace tmshell {
 
-using Scope = StructValue;
-
 class ScopeManager {
 public:
-  static ScopeManager& getInstance() {
-    static ScopeManager instance; 
-    return instance;
-  }
+  ScopeManager();
 
+  void enterScope();
+  void exitScope();
   
-  
-private:  
-
+  void addSymbol(std::string const & name, const IVariableValue & value);
+  void addGlobal(std::string const & name, const IVariableValue & value);  
+  IVariableValue* getSymbol(const std::string & name);
+  void setSymbol(std::string const & name, const IVariableValue & value);
 
 private:
-  ScopeManager() {}
+  std::vector<Scope> scopes;
 
-public:
-  ScopeManager(ScopeManager const&) = delete;
-  void operator=(ScopeManager const&) = delete;
-  
 };
 
 }

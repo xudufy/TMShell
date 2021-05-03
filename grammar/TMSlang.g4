@@ -26,7 +26,6 @@ expr: '-' expr #NegExpr
     | expr ('<' | '>' |'<=' | '>=') expr # RelExpr
     | expr ('==' | '!=') expr # EqlExpr
     | expr ('||' | '&&') expr # LogicExpr
-    | IF '('expr')' expr (ELSE expr)? # IfExpr
     | VAR ID '=' expr # LocalVarDefExpr
     | ID '=' expr # AssignExpr
     | expr'@' expr ('@' expr)? # PeriodicExpr
@@ -36,6 +35,7 @@ expr: '-' expr #NegExpr
     | ID # IDExpr
     | '>>' expr #LaterExpr
     | '<.>' #CurrentExpr
+    | IF '('expr')' expr (ELSE expr)? # IfExpr
     | TimePointLiteral # TimePointLExpr
     | DurationLiteral # DurationLExpr
     | StringLiteral # StringLExpr
@@ -58,8 +58,8 @@ BoolLiteral: 'true' | 'false';
 
 ID: [a-zA-Z_][0-9a-zA-Z_]*;
 
-TimePointLiteral: ((Integer ':')? (Integer ':' Integer 'T' ))? Integer ':' Integer (':' Integer)?
-                | Integer ':' Integer (':' Integer)? 'D' DAYLITERAL  
+TimePointLiteral: ((Integer ':')? (Integer ':' Integer ('T'|'t') ))? Integer ':' Integer (':' Integer)?
+                | Integer ':' Integer (':' Integer)? ('D'|'d') DAYLITERAL  
                 ;
 DurationLiteral: ([0-9]+[wdhms]) +;
 
