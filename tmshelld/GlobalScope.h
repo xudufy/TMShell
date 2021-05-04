@@ -20,10 +20,20 @@ public:
     return instance;
   }
 
-  IVariableValue* getField(const std::string& fieldName);
+  //To ensure thread safe, we must return a copy.
+  //SHOULD NOT BE VIRTUAL.
+  std::unique_ptr<IVariableValue> getField(const std::string& fieldName);
   bool checkField(const std::string& fieldName);
   bool addField(const std::string& fieldName, const IVariableValue & value);
   bool setField(const std::string& fieldName, const IVariableValue & value);
+
+  void lock() {
+    objmtx.lock();
+  }
+
+  void unlock() {
+    objmtx.unlock();
+  }
 
 private:
   GlobalScope(){}
@@ -33,7 +43,7 @@ public:
   void operator=(GlobalScope const&) = delete;
   
 private:
-  std::mutex objmtx;
+  std::recursive_mutex objmtx;
 };
 
 }

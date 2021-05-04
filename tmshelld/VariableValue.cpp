@@ -1,5 +1,6 @@
 #include "VariableValue.h"
 #include "ExecutionError.h"
+#include "WindowsSubsys.h" // for utf8 support.
 
 #include <ctime>
 #include <sstream>
@@ -69,7 +70,7 @@ StructValue StructValue::ofPriodic(TimePoint start, TimePoint end, Duration repe
 
 IVariableValue* StructValue::getField(const std::string& fieldName) const {
   if (_field.count(fieldName) == 0) {
-    return nullptr;
+    throw ExecutionError("fieldname " + fieldName + " not found.");
   } else {
     return _field.at(fieldName).get();
   }
@@ -81,7 +82,7 @@ bool StructValue::checkField(const std::string& fieldName) const {
 
 bool StructValue::addField(const std::string& fieldName, const IVariableValue & value) {
   if (checkField(fieldName)) {
-    return false;
+    return setField(fieldName, value);
   } else {
     _field[fieldName] = value.copy();
   }
@@ -91,6 +92,12 @@ bool StructValue::addField(const std::string& fieldName, const IVariableValue & 
 bool StructValue::setField(const std::string& fieldName, const IVariableValue & value) {
   if (!checkField(fieldName)) {
     return false;
+  } else if (_field[fieldName]->getTypeName() != value.getTypeName()) {
+    // once a field is set, its type should not be changed.
+    throw ExecutionError("field or variable \"" + fieldName + "\" is type " +
+      _field[fieldName]->getTypeName() + " but assigned a value of type " + 
+      value.getTypeName()
+    );
   } else {
     _field[fieldName] = value.copy();
   }
@@ -112,7 +119,7 @@ std::string to_string(TimePoint const & tp) {
   if (err != 0) {
     throw ExecutionError("unsupported time point");
   }
-  strftime(buf, 255, "%m/%d/%Y %a %H:%M:%S ", &local);
+  strftime(buf, 255, "%m/%d/%Y %a %H:%M:%S", &local);
   return buf;
 }
 
@@ -327,7 +334,7 @@ std::string to_string(Duration const & dur) {
   if (minus) {
     d = -d;
   }
-  snprintf(buf, 255, "%I64d d%I64dh%I64dm%I64ds", d, h, m, s);
+  snprintf(buf, 255, "%I64dd%I64dh%I64dm%I64ds", d, h, m, s);
 
   return buf;
 }
@@ -362,10 +369,53 @@ Duration to_Duration(std::string const & in) {
 std::string to_string(StructValue const & sv) {
   std::string out = "{";
   for (auto iter = sv._field.begin(); iter!= sv._field.end(); ++iter) {
-    out += iter->first + ": " + iter->second->to_string() + ",";
+    out += iter->first + "=" + iter->second->to_string() + ", \n";
   }
-  out += "}\n";
+  out += "}";
   return out;
+}
+
+std::string unescape_string(std::string const & in) {
+  auto firstQuote = in.find_first_of("\"");
+  auto lastQuote = in.find_last_of("\"");
+  std::string temp_in = in;
+  if (lastQuote > firstQuote) {
+    temp_in = in.substr(firstQuote+1, lastQuote-firstQuote-1);
+  }
+  if (temp_in.size() == 0) {
+    return temp_in;
+  }
+
+  std::wstring temp = utf8_to_wchar(temp_in);
+  std::wstring tempout = L"";
+  bool inEscape = false;
+  for (auto wch: temp) {
+    if (!inEscape) {
+      if (wch==L'\\') {
+        inEscape = true;
+        continue;
+      } else {
+        tempout+=wch;
+      }
+    } else {
+      switch (wch)
+      {
+      case L'n':
+        tempout += L'\n';
+        break;
+      case L't':
+        tempout +=L'\t';
+        break;
+      default:
+        tempout +=wch;
+        break;
+      }
+      inEscape = false;
+    }
+  }
+
+  return wchar_to_uft8(tempout);
+
 }
 
 }

@@ -5,7 +5,7 @@ namespace tmshell {
 
 std::wstring utf8_to_wchar(std::string const &);
 
-std::string wchar_to_uft8(std::string const &);
+std::string wchar_to_uft8(std::wstring const &);
 
 //All thread created here are detached for releasing resources. 
 //Make sure the main() will run forever, otherwise the gui will close when main() exits.

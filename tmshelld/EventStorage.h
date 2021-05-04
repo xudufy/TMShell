@@ -23,7 +23,7 @@ public:
   TimePoint nextTriggerTime;
   bool haveRepeat;
   TimePoint startTime, endTime;
-  Duration repeat;
+  Duration period;
 
 };
 

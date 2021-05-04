@@ -39,6 +39,10 @@ inline std::string to_string(int i) {
   return std::to_string(i);
 }
 
+inline std::string to_string(bool i) {
+  return i?"true":"false";
+}
+
 inline std::string to_string(const std::string & i) {
   return i;
 }
@@ -51,6 +55,8 @@ void find_next_occurance(tm ref, tm & dst); //exported for test purpose.
 std::string to_string(Duration const & dur);
 Duration to_Duration(std::string const & in);
 std::string to_string(StructValue const & sv);
+
+std::string unescape_string(std::string const & in);
 
 class IVariableValue {
 public:
@@ -186,6 +192,16 @@ public:
     return "<void>";
   }
 };
+
+template<typename Rep>
+Rep iv_get(IVariableValue & c) {
+  return dynamic_cast<SimpleVariableValue<Rep> &>(c).get();
+}
+
+template<typename Rep>
+Rep iv_get(IVariableValue * c) {
+  return dynamic_cast<SimpleVariableValue<Rep> *>(c)->get();
+}
 
 
 }  // namespace tmshell

@@ -17,7 +17,7 @@ public:
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
     T__20 = 21, T__21 = 22, COLON = 23, TEXTARG = 24, IF = 25, ELSE = 26, 
-    POUND = 27, LEFTBRACE = 28, RIGHTBRACE = 29, RIGHTARROW = 30, VAR = 31, 
+    POUND = 27, LEFTBRACE = 28, RIGHTBRACE = 29, RIGHTARROW = 30, LET = 31, 
     SESSION = 32, GLOBAL = 33, BoolLiteral = 34, ID = 35, TimePointLiteral = 36, 
     DurationLiteral = 37, DurationFragment = 38, IntegerLiteral = 39, StringLiteral = 40, 
     WS = 41, ESCAPEDNEWLINE = 42, NEWLINE_SKIP = 43, NEWLINE = 44, ERRORCHAR = 45

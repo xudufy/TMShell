@@ -14,8 +14,8 @@ void LoggedBaseVisitor::addLog(const std::string & msg) {
 
 void LoggedBaseVisitor::error(antlr4::ParserRuleContext * context, const std::string & reason) {
   using namespace antlr4;
-  auto l = context->stop->getLine();
-  auto c = context->stop->getCharPositionInLine();
+  auto l = context->start->getLine();
+  auto c = context->start->getCharPositionInLine();
   throw ExecutionError(std::to_string(l) + ":" + std::to_string(c) + ":" + reason + "\n" 
     + getText(context) +"\n");
 }
@@ -27,7 +27,6 @@ void LoggedBaseVisitor::error(antlr4::ParserRuleContext * context, const std::ex
 std::string LoggedBaseVisitor::getText(antlr4::ParserRuleContext * context) {
   size_t a = context->start->getStartIndex();
   size_t b = context->stop->getStopIndex();
-  context->getSourceInterval();
   antlr4::misc::Interval interval(a, b);
   std::string out = context->start->getInputStream()->getText(interval);
   return out;

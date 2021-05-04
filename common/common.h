@@ -22,7 +22,7 @@
 #define ASSERT(x, msg) do {\
   if (!(x)) { \
     std::cerr<<"Assertion failed:"<<#x<<":"<<(msg)<<std::endl; \
-    exit(-1); \
+    throw std::exception("assert failed.");\
   } \
 } while (false)
 

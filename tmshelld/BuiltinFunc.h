@@ -7,20 +7,20 @@
 
 namespace tmshell {
 
-class ActionExecutor;
+class LoggedBaseVisitor;
 
 class BuiltinFunc {
 public:
-  explicit BuiltinFunc(ActionExecutor * e);
+  explicit BuiltinFunc(LoggedBaseVisitor * e);
 
   BuiltinFunc(BuiltinFunc const&) = delete;
   void operator=(BuiltinFunc const&) = delete;
 
 public:
-  std::unique_ptr<IVariableValue> call(const std::string & funcName, const std::vector<IVariableValue *> & args);
-  std::unique_ptr<IVariableValue> call(const std::string & funcName);
+  std::unique_ptr<IVariableValue> call(const std::string & funcName, const std::vector<IVariableValue *> & args, bool checkOnly = false);
+  std::unique_ptr<IVariableValue> call(const std::string & funcName, bool checkOnly = false);
 
-public: //public for test purpose
+public:
   VoidValue alert(const std::string & msg);
 
   VoidValue log(const std::string & msg);
@@ -33,9 +33,9 @@ public: //public for test purpose
   
   BoolValue disconnect();
 
-  [[ noreturn ]] VoidValue _return();
+  [[ noreturn ]] void _return();
 private:
-  ActionExecutor * env;
+  LoggedBaseVisitor * env;
   static std::unordered_map<std::string, std::vector<std::string>> funcMap;
   static std::mutex initMutex;
   

@@ -66,6 +66,8 @@ public:
 
     virtual antlrcpp::Any visitStringLExpr(TMSlangParser::StringLExprContext *context) = 0;
 
+    virtual antlrcpp::Any visitParanExpr(TMSlangParser::ParanExprContext *context) = 0;
+
     virtual antlrcpp::Any visitLaterExpr(TMSlangParser::LaterExprContext *context) = 0;
 
     virtual antlrcpp::Any visitCurrentExpr(TMSlangParser::CurrentExprContext *context) = 0;

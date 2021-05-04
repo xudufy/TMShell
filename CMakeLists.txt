@@ -5,7 +5,7 @@ project(TMShell)
 
 set(CXX_STANDARD 14)
 
-add_compile_options(/MD /W4 /wd4458 /wd4996 /wd4251) # We will always link to Release Mode dynamic msvcrt.
+add_compile_options(/MD /MP /W4 /wd4458 /wd4996 /wd4251) # We will always link to Release Mode dynamic msvcrt.
 
 add_definitions(-DTEST_SERVER) 
 
@@ -91,6 +91,14 @@ add_executable(
     windows_test
 
     test/windows_test.cpp
+    $<TARGET_OBJECTS:parser>
+    $<TARGET_OBJECTS:tmshelld_obj>
+)
+
+add_executable(
+    action_test
+
+    test/action_test.cpp
     $<TARGET_OBJECTS:parser>
     $<TARGET_OBJECTS:tmshelld_obj>
 )

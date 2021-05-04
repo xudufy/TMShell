@@ -109,6 +109,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitParanExpr(TMSlangParser::ParanExprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitLaterExpr(TMSlangParser::LaterExprContext *ctx) override {
     return visitChildren(ctx);
   }

@@ -86,7 +86,7 @@ Special Operators:
 ### Trigger Definition
 a trigger is defined in the form 
 ```
-triggerDef = signal ('#' trigger_name)? '=>' action
+triggerDef = signal ('#' trigger_name)? '=>'|']]' action
 ```
 
 a signal can be one of 
@@ -123,12 +123,12 @@ reset time
 
 //info retrival
 ls signal
-ls trigger
+ls event
 ls global //global variable
 
 //removal
 remove signal <signal index>
-remove trigger <trigger index>
+remove event <trigger index>
 
 //execute a file of TimeMachine Code
 run <file path>
@@ -167,8 +167,8 @@ BNF:
 ```
 execute_line = (mgmt_command | varDef | triggerDef) '\n'
 mgmt_command = ':' command_name ~[\n]*
-varDef = 'session'|'global' VarID <- expr
-triggerDef = signal ('#' trigger_name)? '=>' action
+varDef = 'let' ('session'|'global') VarID = expr
+triggerDef = signal ('#' trigger_name)? ('=>'|' ') action
 signal = expr
 action = expr
 expr = expr '+' expr
@@ -178,8 +178,8 @@ expr = expr '+' expr
     | expr '<' expr
     | expr '==' expr
     | 'if' '('expr')' expr 'else' expr
-    | 'var' VarID '<-' expr
-    | VarID '<-' expr
+    | 'let' VarID '=' expr
+    | VarID '=' expr
     | expr'<<<' expr ('>>>' expr)?
     | expr '.' FieldID
     | MethodID '(' expr (, expr) * ')'
@@ -194,3 +194,6 @@ expr = expr '+' expr
 
 ##Log
 1. Anything can be implicitly transfrom to string. All other type casting are forbidden.
+1. Duration/int (devision) is forbidden.
+1. equal is defined by `to_string(lhs) == to_string(rhs) && type(lhs) == type(rhs)`. It is sound and complete as long as no custom struct support.
+1. short cut for `||` and `&&` is implemented.

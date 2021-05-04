@@ -15,27 +15,28 @@ cmd_arg : StringLiteral #QuotedArg
         | TEXTARG #PlainArg
         ;
 
-varDef : VAR ID '=' expr #SessionVarDef
-      | VAR GLOBAL ID '=' expr # GlobalVarDef
+varDef : LET ID '=' expr #SessionVarDef
+      | LET GLOBAL ID '=' expr # GlobalVarDef
       ;
-triggerDef : signal=expr (POUND trigger_name=cmd_arg)? RIGHTARROW? action+=expr (';' action+=expr)* ;
+triggerDef : signal=expr (POUND trigger_name=cmd_arg)? RIGHTARROW action+=expr (';' action+=expr)* ;
 expr: '-' expr #NegExpr
     | '!' expr #NotExpr
-    | expr ('*' | '/') expr # MulExpr
-    | expr ('+'|'-') expr # AddExpr
-    | expr ('<' | '>' |'<=' | '>=') expr # RelExpr
-    | expr ('==' | '!=') expr # EqlExpr
-    | expr ('||' | '&&') expr # LogicExpr
-    | VAR ID '=' expr # LocalVarDefExpr
-    | ID '=' expr # AssignExpr
-    | expr'@' expr ('@' expr)? # PeriodicExpr
+    | expr op=('*' | '/') expr # MulExpr
+    | expr op=('+'|'-') expr # AddExpr
+    | expr op=('<' | '>' |'<=' | '>=') expr # RelExpr
+    | expr op=('==' | '!=') expr # EqlExpr
+    | lhs=expr op=('||' | '&&') rhs=expr # LogicExpr
+    | LET ID '=' expr # LocalVarDefExpr
+    | id+=ID ('.' id+=ID ('.' id+=ID)?)? '=' expr # AssignExpr
+    | expr'@' expr ('@' end=expr)? # PeriodicExpr
     | expr '.' ID # FieldExpr
-    | ID '(' (expr (',' expr) *)? ')' # CallExpr
-    | LEFTBRACE  (expr ';')* RIGHTBRACE # GroupExpr
+    | ID '(' (args+=expr (',' args+=expr) *)? ')' # CallExpr
+    | LEFTBRACE  (inner+=expr (';' inner+=expr)*)? ';'? RIGHTBRACE # GroupExpr
     | ID # IDExpr
     | '>>' expr #LaterExpr
     | '<.>' #CurrentExpr
-    | IF '('expr')' expr (ELSE expr)? # IfExpr
+    | '(' expr ')' #ParanExpr
+    | IF '('cond=expr')' then=expr (ELSE epart=expr)? # IfExpr
     | TimePointLiteral # TimePointLExpr
     | DurationLiteral # DurationLExpr
     | StringLiteral # StringLExpr
@@ -50,8 +51,8 @@ ELSE:'else';
 POUND: '#' {textArgModeOneWord=1;};
 LEFTBRACE: '{' {skipNewline=1;};
 RIGHTBRACE: '}' {skipNewline=0;};
-RIGHTARROW: '=>' {textArgModeOneWord=0;};
-VAR: 'var';
+RIGHTARROW: '=>'| ']]' {textArgModeOneWord=0;};
+LET: 'let';
 SESSION: 'session';
 GLOBAL: 'global';
 BoolLiteral: 'true' | 'false';

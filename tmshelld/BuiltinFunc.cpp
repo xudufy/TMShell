@@ -1,4 +1,5 @@
-#include "BuiltinFunction.h"
+#include "BuiltinFunc.h"
+#include "LoggedBaseVisitor.h"
 #include "ActionExecutor.h"
 #include "EventStorage.h"
 #include "ExecutionError.h"
@@ -10,7 +11,7 @@ namespace tmshell {
 std::unordered_map<std::string, std::vector<std::string>> BuiltinFunc::funcMap;
 std::mutex BuiltinFunc::initMutex;
 
-BuiltinFunc::BuiltinFunc(ActionExecutor * e):env(e){
+BuiltinFunc::BuiltinFunc(LoggedBaseVisitor * e):env(e){
   std::lock_guard<std::mutex> lock(initMutex);
   if (funcMap.size() == 0) {
     funcMap.insert({"alert", {"void", "string"}});
@@ -23,7 +24,7 @@ BuiltinFunc::BuiltinFunc(ActionExecutor * e):env(e){
   }
 }
 
-std::unique_ptr<IVariableValue> BuiltinFunc::call(std::string const & funcName, std::vector<IVariableValue *> const & args) {
+std::unique_ptr<IVariableValue> BuiltinFunc::call(std::string const & funcName, std::vector<IVariableValue *> const & args, bool checkOnly) {
   if (funcMap.count(funcName) == 0) {
     throw ExecutionError("function name not found");
   }
@@ -54,6 +55,13 @@ std::unique_ptr<IVariableValue> BuiltinFunc::call(std::string const & funcName, 
     }
   }
 
+  if (checkOnly) {
+    std::string returnType = funcspec.at(0);
+    if (returnType == "bool") {
+      return std::make_unique<BoolValue>(true);
+    }
+    return std::make_unique<VoidValue>();
+  }
 
   if (funcName == "alert") {
     auto out = alert(dynamic_cast<StringValue *>(after_conversion[0])->get());
@@ -78,15 +86,14 @@ std::unique_ptr<IVariableValue> BuiltinFunc::call(std::string const & funcName, 
     return std::make_unique<decltype(out)>(std::move(out));
   
   } else if (funcName == "return") {
-    auto out = _return();
-    return std::make_unique<decltype(out)>(std::move(out));
+    _return(); // no return;
   }
   
   return std::make_unique<BoolValue>(true);
 }
 
-std::unique_ptr<IVariableValue> BuiltinFunc::call(std::string const & funcName) {
-  return call(funcName, {});
+std::unique_ptr<IVariableValue> BuiltinFunc::call(std::string const & funcName, bool checkOnly) {
+  return call(funcName, {}, checkOnly);
 }
 
 VoidValue BuiltinFunc::alert(const std::string & msg) {
@@ -113,15 +120,17 @@ BoolValue BuiltinFunc::signal(const std::string & name) {
     env->addLog("signal " + name + " does not connect to any actions.");
   }
 
+  bool allSuccess = true;
   for (auto action: actions) {
     try {
       runAction(action);
     } catch (ExecutionError const & e) {
       env->addLog(e.what());
+      allSuccess = false;
     }
   }
-
-  return true;
+  
+  return allSuccess;
 }
 
 
@@ -152,10 +161,11 @@ BoolValue BuiltinFunc::run(const std::string & path) {
 }
 
 BoolValue BuiltinFunc::disconnect() {
+  //TODO
   return true;
 }
 
-[[ noreturn ]] VoidValue BuiltinFunc::_return() {
+[[ noreturn ]] void BuiltinFunc::_return() {
   throw JumpOutSignal();
 }
 

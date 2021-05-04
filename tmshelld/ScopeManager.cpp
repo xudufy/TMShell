@@ -28,10 +28,10 @@ void ScopeManager::addSymbol(std::string const & name, const IVariableValue & va
   }
 }
 
-IVariableValue* ScopeManager::getSymbol(const std::string & name) {
+std::unique_ptr<IVariableValue> ScopeManager::getSymbol(const std::string & name) {
   for (auto i = scopes.size()-1; i>=0; i-- ) {
     if (scopes[i].checkField(name)) {
-      return scopes[i].getField(name);
+      return scopes[i].getField(name)->copy();
     }
   }
 
@@ -60,11 +60,38 @@ void ScopeManager::setSymbol(std::string const & name, const IVariableValue & va
 
 void ScopeManager::addGlobal(std::string const & name, const IVariableValue & value) {
   bool success = GlobalScope::getInstance().addField(name, value);
-  if (!success) {
-    throw ExecutionError("Variable " + name + " defined more than once in global.");
+  ASSERT(success, "sm.addglobal");
+}
+
+static void setStructValue(StructValue *sv, std::list<std::string> & ids, IVariableValue const & value) {
+  if (ids.size() == 1) {
+    sv->StructValue::setField(*ids.begin(), value);
+  } else {
+    IVariableValue * member = sv->StructValue::getField(*ids.begin());
+    if (IVariableValue::is<StructValue>(member)) {
+      ids.pop_front();
+      setStructValue(dynamic_cast<StructValue*>(member), ids, value);
+    } else {
+      throw ExecutionError("Struct member assignment type error.");
+    }
   }
 }
 
+void ScopeManager::setStructSymbol(std::vector<std::string> const & ids, IVariableValue const & value) {
+  ASSERT(ids.size() >= 1, "setStructSymbol count error");
+  std::list<std::string> ids_temp(ids.begin(), ids.end());
+  for (auto i = scopes.size()-1; i>=0; i-- ) {
+    if (scopes[i].checkField(ids[0])) {
+      setStructValue(&scopes[i], ids_temp, value);
+      return;
+    }
+  }
+  GlobalScope::getInstance().lock();
 
+  setStructValue(&GlobalScope::getInstance(), ids_temp, value);
+
+  GlobalScope::getInstance().unlock();
+
+}
 
 }
