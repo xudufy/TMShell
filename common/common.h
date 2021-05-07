@@ -40,7 +40,7 @@
 #define TMSHELL_SERVICE_PATH "/"
 #define TMSHELL_SERVICE_PORT 55211
 #else
-#define TMSHELL_SERVICE_HOST "localhost"
+#define TMSHELL_SERVICE_HOST "127.0.0.1" // don't use localhost unless ipv6 server is ready.
 #define TMSHELL_SERVICE_PATH "/"
 #define TMSHELL_SERVICE_PORT 53127
 #endif
