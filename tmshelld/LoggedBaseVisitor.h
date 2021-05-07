@@ -27,8 +27,11 @@ public:
 class BaseExecutor : public LoggedBaseVisitor {
 protected:
   std::vector<std::unique_ptr<IVariableValue>> stack;
+  
   ScopeManager defaultScope;
-  ScopeManager & scope = defaultScope; // allow switch ScopeManager in TypeChecker.
+  
+  // allow switch ScopeManager in TypeChecker.
+  ScopeManager & scope = defaultScope; 
   BuiltinFunc builtinFuncCtx;
 
 public:
@@ -61,7 +64,7 @@ public:
   friend class BuiltinFunc;
   friend class BuiltinCommand;
   
-  BaseExecutor():builtinFuncCtx(this) {}
+  explicit BaseExecutor():builtinFuncCtx(this) {}
 
 };
 

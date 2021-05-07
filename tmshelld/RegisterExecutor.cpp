@@ -2,7 +2,7 @@
 
 namespace tmshell {
 
-std::string runRegister(std::string const & input) {
+std::string runRegister(std::string const & input, RegisterExecutor *reuse) {
   ParserInstance parser(input);
   auto* tree = parser.parseProgram();
   if (!parser.isComleted()) {
@@ -12,10 +12,16 @@ std::string runRegister(std::string const & input) {
   TypeChecker tcker;
   tree->accept(&tcker);
 
-  RegisterExecutor re;
-  tree->accept(&re);
-
-  return re.log;  
+  if (reuse != nullptr) {
+    reuse->log.clear(); // clear the output of last run.
+    tree->accept(reuse);
+    return reuse->log;
+  } else {
+    RegisterExecutor re;
+    tree->accept(&re);
+    return re.log;
+  }
+  
 } 
 
 using var_t = std::unique_ptr<IVariableValue>;

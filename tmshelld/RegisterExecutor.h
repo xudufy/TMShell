@@ -6,11 +6,13 @@
 #include "TypeChecker.h"
 namespace tmshell {
 
-std::string runRegister(std::string const & input);
+class RegisterExecutor;
+
+std::string runRegister(std::string const & input, RegisterExecutor *session_env = nullptr);
 
 class RegisterExecutor : public BaseExecutor {  
 public:
-  friend std::string runRegister(std::string const &);
+  friend std::string runRegister(std::string const &,  RegisterExecutor *);
   
   virtual antlrcpp::Any visitProgram(TMSlangParser::ProgramContext *context);
 

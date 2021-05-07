@@ -1,7 +1,5 @@
 #pragma once
 #include "../common/common.h"
-#include <boost/asio.hpp>
-#include <chrono>
 
 #include "VariableValue.h"
 
@@ -25,7 +23,9 @@ public:
 
   void setScaler(double to);  
 
-  void tick();
+  void tick(){
+    std::cout<<"tick"<<std::endl;
+  }
 
 private:
   InternalClock() {}
