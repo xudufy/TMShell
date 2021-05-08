@@ -36,7 +36,7 @@
 #define _WIN32_WINNT 0x0601
 
 #ifdef TEST_SERVER
-#define TMSHELL_SERVICE_HOST "ufolya.xyz"
+#define TMSHELL_SERVICE_HOST "ufolyah.cba"
 #define TMSHELL_SERVICE_PATH "/"
 #define TMSHELL_SERVICE_PORT 55211
 #else

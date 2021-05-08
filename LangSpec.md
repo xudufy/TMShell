@@ -53,6 +53,7 @@ TimePoint and duration has a literal form that can directly used in the DSL, wit
 
 ### Time operators
 Normal Operators:
+All operators supported in std::chrono are supported in TMShell, except the '/' (division). Following is some examples.
 ```C++
 //TimePoint forward/backward
 TimePoint operator+(TimePoint, Duration)
@@ -63,16 +64,14 @@ Duration operator+(Duration, Duration)
 Duration operator-(Duration, Duration)
 
 //Comparison
-TimePoint operator<(TimePoint, TimePoint)
-Duration operator<(Duration, Duration)
-TimePoint operator=(TimePoint, TimePoint)
-Duration operator=(Duration, Duration)
+bool operator<=>(TimePoint, TimePoint)
+bool operator<=>(Duration, Duration)
 ```
 
 Special Operators:
 1. Construct a Periodic{start = a, end = c (forever if empty), period = b}
     ```c++
-    a:TimePoint <<< b:Duration [>>> c:TimePoint]  
+    '[' a:TimePoint @ b:Duration [@ c:TimePoint]  ']'
     ```
 1. Get a timepoint after a Duration d of the current time.
     ```
@@ -86,7 +85,7 @@ Special Operators:
 ### Trigger Definition
 a trigger is defined in the form 
 ```
-triggerDef = signal ('#' trigger_name)? '=>'|']]' action
+triggerDef = signal ('#' trigger_name)? ('=>'|']]') action
 ```
 
 a signal can be one of 
@@ -141,7 +140,6 @@ signal <String signal>
 These methods are provided for the `action`.
 ```java
 alert()
-//shell(<filePath>) //run a shell script
 signal(<string signal>) //trigger a string signal
 shell_open(<filePath>) //double fork and run a program
 msgbox(<any thing>) // pop up a msgbox for output some info.
@@ -157,43 +155,58 @@ When you need to call a function, trigger that signal.
 The data exchange can be done by global variable.
 
 ## Implementation 
-I prepare to only complete the time literal/operation part and the built-in functions, which means the variables, the arithmatic for integer/string may not be implemented.
-
-The implementation should be simple, but because there are lots of interactions with the OS, maybe ANTLR with C++ is better choice.
+All the features except the custom struct are implemented correctly.
+Full multi-thread support.
+Full UTF-8 support. (internally converted to UTF16 when perform system calls, so any character beyond UTF16 may be problematic. And consoles cannot show/input UTF-8 properly. So the input and output must be with files if using UTF-8, and a UTF-8 string inputted by file work perfectly with the system api.)
 
 ## Formal Specification
 BNF:
-```
-execute_line = (mgmt_command | varDef | triggerDef) '\n'
-mgmt_command = ':' command_name ~[\n]*
-varDef = 'let' ('session'|'global') VarID = expr
-triggerDef = signal ('#' trigger_name)? ('=>'|' ') action
-signal = expr
-action = expr
-expr = expr '+' expr
-    | expr '-' expr
-    | expr '*' expr
-    | expr '/' expr
-    | expr '<' expr
-    | expr '==' expr
-    | 'if' '('expr')' expr 'else' expr
-    | 'let' VarID '=' expr
-    | VarID '=' expr
-    | expr'<<<' expr ('>>>' expr)?
-    | expr '.' FieldID
-    | MethodID '(' expr (, expr) * ')'
-    | '{' (expr ';')* '}'
-    | VarID
-    | TimePointLiteral
-    | DurationLiteral
-    | StringLiteral
-    | IntegerLiteral
+```py
+program : (execute_line|NEWLINE) +;
+
+execute_line : (mgmt_command | varDef | triggerDef) NEWLINE;
+
+mgmt_command : COLON command_name=cmd_arg args+=cmd_arg*;
+cmd_arg : StringLiteral             #QuotedArg
+        | TEXTARG                   #PlainArg
+        ;
+
+varDef : LET ID '=' expr        #SessionVarDef
+      | LET GLOBAL ID '=' expr  # GlobalVarDef
+      ;
+
+triggerDef : signal=expr (POUND trigger_name=cmd_arg)? RIGHTARROW action=expr;
+
+expr: '-' expr                                              #NegExpr
+    | '!' expr                                              #NotExpr
+    | expr op=('*' | '/') expr                              # MulExpr
+    | expr op=('+'|'-') expr                                # AddExpr
+    | expr op=('<' | '>' |'<=' | '>=') expr                 # RelExpr
+    | expr op=('==' | '!=') expr                            # EqlExpr
+    | expr op=('||' | '&&') expr                            # LogicExpr
+    | LET ID '=' expr                                       # LocalVarDefExpr
+    | id+=ID ('.' id+=ID ('.' id+=ID)?)? '=' expr           # AssignExpr
+    | '[' expr'@' expr ('@' end=expr)? ']'                  # PeriodicExpr
+    | expr '.' ID                                           # FieldExpr
+    | ID '(' (args+=expr (',' args+=expr) *)? ')'           # CallExpr
+    | LEFTBRACE  (inner+=expr (';' inner+=expr)*)? ';'? RIGHTBRACE # GroupExpr
+    | ID                                                    # IDExpr
+    | '>>' expr                                             #LaterExpr
+    | '<.>'                                                 #CurrentExpr
+    | '(' expr ')'                                          #ParanExpr
+    | IF '('cond=expr')' then=expr (ELSE epart=expr)?       # IfExpr
+    | TimePointLiteral                                      # TimePointLExpr
+    | DurationLiteral                                       # DurationLExpr
+    | StringLiteral                                         # StringLExpr
+    | IntegerLiteral                                        #IntLExpr
+    | BoolLiteral                                           #BoolExpr
+    ;
 
 ```
 
-##Log
+## Log
 1. Anything can be implicitly transfrom to string. All other type casting are forbidden.
-1. Duration/int (devision) is forbidden.
+1. Duration/int (division) is forbidden.
 1. equal is defined by `to_string(lhs) == to_string(rhs) && type(lhs) == type(rhs)`. It is sound and complete as long as no custom struct support.
 1. short cut for `||` and `&&` is implemented.
 1. [*Fixed*]bug when COLON command lines used in file modes.

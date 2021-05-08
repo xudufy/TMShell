@@ -5,8 +5,8 @@ let global g_dr = [<.> @ 10s @ >>15m]
 
 :ls global
 
-[<.> @ 10s @ >>5m]=> alert(<.>)
-
 :ls event
-<.> ]] shell_open("C:/windows/regedit.exe")
+"google" ]] shell_open("https://www.google.com")
+"spotify" ]] shell_open("C:\\Users\\Public\\Desktop\\网易云音乐.lnk")
+:signal spotify
 
