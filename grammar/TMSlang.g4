@@ -28,7 +28,7 @@ expr: '-' expr #NegExpr
     | lhs=expr op=('||' | '&&') rhs=expr # LogicExpr
     | LET ID '=' expr # LocalVarDefExpr
     | id+=ID ('.' id+=ID ('.' id+=ID)?)? '=' expr # AssignExpr
-    | expr'@' expr ('@' end=expr)? # PeriodicExpr
+    | '[' expr'@' expr ('@' end=expr)? ']' # PeriodicExpr
     | expr '.' ID # FieldExpr
     | ID '(' (args+=expr (',' args+=expr) *)? ')' # CallExpr
     | LEFTBRACE  (inner+=expr (';' inner+=expr)*)? ';'? RIGHTBRACE # GroupExpr
@@ -51,7 +51,7 @@ ELSE:'else';
 POUND: '#' {textArgModeOneWord=1;};
 LEFTBRACE: '{' {skipNewline=1;};
 RIGHTBRACE: '}' {skipNewline=0;};
-RIGHTARROW: '=>'| ']]' {textArgModeOneWord=0;};
+RIGHTARROW: '=>' | ']]' {textArgModeOneWord=0;};
 LET: 'let';
 SESSION: 'session';
 GLOBAL: 'global';

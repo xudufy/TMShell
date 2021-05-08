@@ -29,7 +29,7 @@ void ScopeManager::addSymbol(std::string const & name, const IVariableValue & va
 }
 
 std::unique_ptr<IVariableValue> ScopeManager::getSymbol(const std::string & name) {
-  for (auto i = scopes.size()-1; i>=0; i-- ) {
+  for (auto i = scopes.size(); i-- >0;) {
     if (scopes[i].checkField(name)) {
       return scopes[i].getField(name)->copy();
     }
@@ -44,7 +44,7 @@ std::unique_ptr<IVariableValue> ScopeManager::getSymbol(const std::string & name
 }
 
 void ScopeManager::setSymbol(std::string const & name, const IVariableValue & value) {
-  for (auto i = scopes.size()-1; i>=0; i-- ) {
+  for (auto i = scopes.size(); i-- >0;) {
     bool success = scopes[i].setField(name, value);
     if (success) {
       return;
@@ -80,7 +80,7 @@ static void setStructValue(StructValue *sv, std::list<std::string> & ids, IVaria
 void ScopeManager::setStructSymbol(std::vector<std::string> const & ids, IVariableValue const & value) {
   ASSERT(ids.size() >= 1, "setStructSymbol count error");
   std::list<std::string> ids_temp(ids.begin(), ids.end());
-  for (auto i = scopes.size()-1; i>=0; i-- ) {
+  for (auto i = scopes.size(); i-- >0;) {
     if (scopes[i].checkField(ids[0])) {
       setStructValue(&scopes[i], ids_temp, value);
       return;

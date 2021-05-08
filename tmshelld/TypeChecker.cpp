@@ -318,7 +318,11 @@ antlrcpp::Any TypeChecker::visitAssignExpr(TMSlangParser::AssignExprContext *con
 
 antlrcpp::Any TypeChecker::visitGroupExpr(TMSlangParser::GroupExprContext *context) {  
   visitChildren(context);
-  for (int i=0; i < context->inner.size()-1; i++) {
+  if (context->inner.size() == 0) {
+    push_stack_v();
+    return nullptr;
+  }
+  for (int64_t i=0; i < (int64_t)(context->inner.size())-1; i++) {
     pop_stack();
   }
   return  nullptr;
@@ -383,7 +387,7 @@ antlrcpp::Any TypeChecker::visitCallExpr(TMSlangParser::CallExprContext *context
   argv.resize(argc);
   std::vector<IVariableValue *> in_argv; 
   in_argv.resize(argc);
-  for (size_t i = argc - 1; i -- > 0; ) {
+  for (size_t i = argc; i -- > 0; ) {
     argv[i] = std::move(pop_stack());
     in_argv[i] = argv[i].get();
   }

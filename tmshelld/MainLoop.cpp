@@ -108,8 +108,11 @@ int MainLoop::main() {
   start_tick();
   start_accept();
 
-//Do not start other thread until all parts are thread-safe.
+  std::thread t1([this](){this->ioc.run();});
+  std::thread t2([this](){this->ioc.run();});
   ioc.run();
+  t1.join();
+  t2.join();
   return 0;
 }
 

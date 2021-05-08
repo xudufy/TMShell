@@ -142,26 +142,32 @@ void BuiltinCommand::ls(const std::vector<std::string> & args, bool checkOnly) {
   }
 
   if (checkOnly) return;
+  bool isEmpty = true;
   if (args[0] == "event") {
     auto& ev_s = EventStorage::getInstance();
     ev_s.lock();
     for (auto item : ev_s.str_events) {
       env->addLog(item.to_string());
+      isEmpty = false;
     }
     for (auto item : ev_s.tm_events) {
       env->addLog(item.to_string());
+      isEmpty = false;
     }
     ev_s.unlock();
-    return;
   }
 
   if (args[0] == "global") {
     auto& gs = GlobalScope::getInstance();
     gs.lock();
     env->addLog(gs.to_string());
+    isEmpty = false;
     gs.unlock(); 
   }
-
+  
+  if (isEmpty) {
+    env->addLog("<empty>");
+  }
 
 }
 

@@ -1,7 +1,10 @@
-LET sess_1 = 1
-LET GLOBAL g_2 = 2
-LET GLOBAL g_tm = <.>
-LET GLOBAL g_dr = <.> @ 10s @ >>15m
+let sess_1 = 1
+let global g_2 = 2
+let global g_tm = <.>
+let global g_dr = [<.> @ 10s @ >>15m]
 
 :ls global
+
+<.> #int => alert(g_dr)
+
 

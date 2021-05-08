@@ -435,6 +435,9 @@ antlrcpp::Any RegisterExecutor::visitAssignExpr(TMSlangParser::AssignExprContext
 
 antlrcpp::Any RegisterExecutor::visitGroupExpr(TMSlangParser::GroupExprContext *context) {  
   visitChildren(context);
+  if (context->inner.size() == 0) {
+    push_stack_v();
+  }
   auto ret = pop_stack();
   for (int i=0; i < context->inner.size()-1; i++) {
     pop_stack();

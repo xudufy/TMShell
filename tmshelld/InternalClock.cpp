@@ -41,6 +41,10 @@ void InternalClock::setScaler(double to) {
   double scaler_copy;
   {
     std::lock_guard<std::mutex> lock(objmtx);
+    TimePoint curRealTime = Clock::now();
+    TimePoint curPlayTime = toPlaytime(curRealTime, RefRealTime, RefPlayTime, scaler);
+    RefRealTime = curRealTime;
+    RefPlayTime = curPlayTime;
     scaler = to;
     rpt_copy = RefPlayTime;
     scaler_copy = scaler;

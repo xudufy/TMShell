@@ -16,11 +16,11 @@ public:
     T__0 = 1, T__1 = 2, T__2 = 3, T__3 = 4, T__4 = 5, T__5 = 6, T__6 = 7, 
     T__7 = 8, T__8 = 9, T__9 = 10, T__10 = 11, T__11 = 12, T__12 = 13, T__13 = 14, 
     T__14 = 15, T__15 = 16, T__16 = 17, T__17 = 18, T__18 = 19, T__19 = 20, 
-    T__20 = 21, T__21 = 22, COLON = 23, TEXTARG = 24, IF = 25, ELSE = 26, 
-    POUND = 27, LEFTBRACE = 28, RIGHTBRACE = 29, RIGHTARROW = 30, LET = 31, 
-    SESSION = 32, GLOBAL = 33, BoolLiteral = 34, ID = 35, TimePointLiteral = 36, 
-    DurationLiteral = 37, DurationFragment = 38, IntegerLiteral = 39, StringLiteral = 40, 
-    WS = 41, ESCAPEDNEWLINE = 42, NEWLINE_SKIP = 43, NEWLINE = 44, ERRORCHAR = 45
+    T__20 = 21, T__21 = 22, T__22 = 23, T__23 = 24, COLON = 25, TEXTARG = 26, 
+    IF = 27, ELSE = 28, POUND = 29, LEFTBRACE = 30, RIGHTBRACE = 31, RIGHTARROW = 32, 
+    LET = 33, SESSION = 34, GLOBAL = 35, BoolLiteral = 36, ID = 37, TimePointLiteral = 38, 
+    DurationLiteral = 39, DurationFragment = 40, IntegerLiteral = 41, StringLiteral = 42, 
+    WS = 43, ESCAPEDNEWLINE = 44, NEWLINE_SKIP = 45, NEWLINE = 46, ERRORCHAR = 47
   };
 
   explicit TMSlangLexer(antlr4::CharStream *input);

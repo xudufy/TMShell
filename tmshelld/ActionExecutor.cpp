@@ -346,6 +346,10 @@ antlrcpp::Any ActionExecutor::visitAssignExpr(TMSlangParser::AssignExprContext *
 
 antlrcpp::Any ActionExecutor::visitGroupExpr(TMSlangParser::GroupExprContext *context) {  
   visitChildren(context);
+  if (context->inner.size() == 0) {
+    push_stack_v();
+    return nullptr;
+  }
   auto ret = pop_stack();
   for (int i=0; i < context->inner.size()-1; i++) {
     pop_stack();
@@ -440,6 +444,7 @@ antlrcpp::Any ActionExecutor::visitFieldExpr(TMSlangParser::FieldExprContext *co
   auto *v1r = dynamic_cast<StructValue *> (v1.get());
   if (v1r == nullptr) {
     error(context, "lhs is not a struct value.");
+    return nullptr;
   }
 
   try {
