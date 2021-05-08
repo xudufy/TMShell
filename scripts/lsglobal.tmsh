@@ -5,6 +5,8 @@ let global g_dr = [<.> @ 10s @ >>15m]
 
 :ls global
 
-<.> #int => alert(g_dr)
+[<.> @ 10s @ >>5m]=> alert(<.>)
 
+:ls event
+<.> ]] shell_open("C:/windows/regedit.exe")
 

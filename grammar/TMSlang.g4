@@ -80,6 +80,6 @@ fragment EscapedSL: '\\\\'
 
 WS : [ \t]+ -> skip;
 ESCAPEDNEWLINE : ('\\\n'|'\\\r\n') -> skip;
-NEWLINE_SKIP: ('\n' | '\r\n')+ {skipNewline==1}? -> skip;
-NEWLINE: '\n' | '\r\n'{textArgModeOneLine=0;textArgModeOneWord = 0;};
+NEWLINE_SKIP: ('\n' | '\r\n') {skipNewline==1}? -> skip;
+NEWLINE: ('\n' | '\r\n') {textArgModeOneLine=0;textArgModeOneWord = 0;};
 ERRORCHAR:.;
