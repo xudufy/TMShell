@@ -3,6 +3,7 @@
 
 #include "VariableValue.h"
 
+
 namespace tmshell {
 
 class InternalClock{
@@ -12,23 +13,31 @@ public:
     return instance;
   }
 
-  void reset() {
-    RefRealTime = Clock::now();
-    RefPlayTime = RefRealTime;
-    scaler = 1.0;
-    LastTickRealTime = RefRealTime-std::chrono::seconds(1);
-  }
+  void reset();
 
   void setTime(TimePoint to);
 
-  void setScaler(double to);  
+  void setScaler(double to);
 
-  void tick(){
-    std::cout<<"tick"<<std::endl;
-  }
+  //not thread safe. Must lock on objmtx to stop the world.
+  //if one need to stop the world, the lock order is:
+  //lock(InternalClock);
+  //lock(EventStorage);
+  //lock(GlobalScope);
+  TimePoint getLastTickPlayTime();
+  double getScaler();
+
+  void tick();
 
 private:
-  InternalClock() {}
+  InternalClock() {
+    RefRealTime = Clock::now();
+    RefPlayTime = RefRealTime;
+    scaler = 1.0;
+    LastTickRealTime = RefRealTime;
+  }
+
+  TimePoint toPlaytime(TimePoint rt, TimePoint refRT, TimePoint refPT, double scaler);
 
 public:
   InternalClock(InternalClock const&) = delete;
@@ -39,6 +48,9 @@ private:
   TimePoint RefPlayTime;
   TimePoint LastTickRealTime;
   double scaler;
+
+public:
+  std::mutex objmtx;
 
 };
 

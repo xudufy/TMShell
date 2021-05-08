@@ -1,0 +1,7 @@
+LET sess_1 = 1
+LET GLOBAL g_2 = 2
+LET GLOBAL g_tm = <.>
+LET GLOBAL g_dr = <.> @ 10s @ >>15m
+
+:ls global
+

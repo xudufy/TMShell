@@ -25,7 +25,7 @@ using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
 class WSClient {
 public:
-  WSClient():ioc(), ws(ioc) {
+  WSClient():ioc(), ws(net::make_strand(ioc)) {
     ws.binary(true);
   }
 
@@ -41,7 +41,6 @@ public:
     try {
       tcp::resolver resolver(ioc);
       auto result = resolver.resolve(TMSHELL_SERVICE_HOST, std::to_string(TMSHELL_SERVICE_PORT));
-      std::cout << result.begin()->endpoint().address();
       net::connect(ws.next_layer(), result.begin(), result.end());
       ws.handshake(TMSHELL_SERVICE_HOST, TMSHELL_SERVICE_PATH);
     } catch (std::exception const & e) {

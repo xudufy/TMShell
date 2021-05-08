@@ -40,8 +40,7 @@ private:
 
 private:
   BaseExecutor * env;
-  static std::unordered_map<std::string, int> commandMap; //commandName, minimum arg count.
-  static std::mutex initMutex;
+  const static std::unordered_map<std::string, int> commandMap; //commandName, minimum arg count.
   
 };
 

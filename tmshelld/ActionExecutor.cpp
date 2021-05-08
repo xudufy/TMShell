@@ -2,14 +2,14 @@
 
 namespace tmshell {
 
-std::string runAction(std::string const & action) {
+std::string runAction(std::string const & action, int ev_id) {
   ParserInstance parser(action);
   auto * tree = parser.parseAction();
   if (!parser.isComleted()) {
     throw ExecutionError(parser.getLastError());
   }
   
-  ActionExecutor executor;
+  ActionExecutor executor(ev_id);
   try {
     tree->accept(&executor);
     executor.addLog("Evaluation Output:\n" + executor.stack.back()->to_string());
@@ -57,13 +57,6 @@ antlrcpp::Any ActionExecutor::visitSessionVarDef(TMSlangParser::SessionVarDefCon
 
 antlrcpp::Any ActionExecutor::visitGlobalVarDef(TMSlangParser::GlobalVarDefContext *context) {  
   visitChildren(context);
-  auto v = pop_stack();
-  try {
-    scope.addGlobal(context->ID()->getText(), *v);
-  } catch (ExecutionError const & e) {
-    error(context, e);
-  }
-  push_stack_v();
   return nullptr;
 }
 

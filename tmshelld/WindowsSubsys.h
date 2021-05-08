@@ -28,9 +28,6 @@ public:
   bool shell_open(std::string const & file, std::string & out_error_msg);
 
   std::string file_read(const std::string & path);
-  
-private:
-  std::mutex objmtx;
 
 };
 

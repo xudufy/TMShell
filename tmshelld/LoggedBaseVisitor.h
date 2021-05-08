@@ -60,7 +60,7 @@ public:
   }
 
 public:
-  friend std::string runAction(std::string const &);
+  friend std::string runAction(std::string const &, int);
   friend class BuiltinFunc;
   friend class BuiltinCommand;
   

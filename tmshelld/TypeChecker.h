@@ -4,6 +4,7 @@
 #include "VariableValue.h"
 #include "ScopeManager.h"
 #include "BuiltinCommand.h"
+#include "RegisterExecutor.h"
 
 namespace tmshell {
 
@@ -13,7 +14,9 @@ private:
   ScopeManager actionScope;
   ScopeManager fakeGlobalScope;
 public:
-  TypeChecker():builtinCom(this) {}
+  TypeChecker();
+  
+  explicit TypeChecker(RegisterExecutor & reuse_session);
 
   virtual antlrcpp::Any visitProgram(TMSlangParser::ProgramContext *context);
 

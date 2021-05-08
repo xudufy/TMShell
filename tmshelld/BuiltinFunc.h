@@ -36,8 +36,7 @@ public:
   [[ noreturn ]] void _return();
 private:
   LoggedBaseVisitor * env;
-  static std::unordered_map<std::string, std::vector<std::string>> funcMap;
-  static std::mutex initMutex;
+  const static std::unordered_map<std::string, std::vector<std::string>> funcMap;
   
 };
 

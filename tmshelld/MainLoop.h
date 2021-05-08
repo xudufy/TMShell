@@ -15,59 +15,60 @@ namespace tmshell {
 namespace net = boost::asio;
 namespace beast = boost::beast;
 using namespace boost::beast;
+using boost::system::error_code;
 using net::ip::tcp;
 
+class MainLoop;
+
+//always use 'new' on this Class. The class will delete itself by delete this when the connection is closed.
 class Session {
 public:
-  Session(net::io_context & ioc): ws(net::make_strand(ioc)) {}
+  Session(net::io_context & ioc);
+  Session(Session const & that) = delete;
+  void operator=(Session const &) = delete;
 
-  bool isClosed() {
-    return !ws.is_open()
-  }
+  void start();
 
+  void close();
+
+  friend class MainLoop;
+
+private:
+  void read_handler(error_code const &e, std::size_t /*length*/);
+
+  // we may allocate a const buffer for the write, and want to keep it until the handler is called.
+  // buffer_need_delete is present for this purpose.
+  // if buffer_need_delete is not nullptr, the pointer will be delete regardless of error_code.
+  void write_handler(error_code const &e, std::size_t /*len_transferred*/, const void * buffer_need_delete = nullptr);
+
+private:
   websocket::stream<tcp_stream> ws;
   RegisterExecutor run_env;
+  beast::multi_buffer in_buffer;
+  
 };
 
 class MainLoop {
 public:
-
-  MainLoop():
-    ioc(), 
-    tick_timer(ioc),
-    acpr(ioc, tcp::endpoint(tcp::v4(), TMSHELL_SERVICE_PORT)) 
-    {} 
-
-  int main() {
-    tick_timer.expires_after(std::chrono::seconds(1));
-    tick_timer.async_wait(boost::bind(tick_handler, net::placeholders::error, &tick_timer));
+  MainLoop();
+  MainLoop(MainLoop const &) = delete;
+  void operator=(MainLoop const &) = delete;
 
 
-    ioc.run();
-    return 0;
-  }
+  void stop_tick();
 
-  static void tick_handler(
-      const boost::system::error_code& e, 
-      net::basic_waitable_timer<Clock>* tick_timer
-    ) {
-    
-    if (e != net::error::operation_aborted) {
-      tick_timer->expires_after(std::chrono::seconds(1));
-      InternalClock::getInstance().tick();
-      tick_timer->async_wait(boost::bind(tick_handler, net::placeholders::error, tick_timer));
-    }
-  
-  }
+  int main();
 
-  void stop_tick() {
-    tick_timer.expires_at(Clock::now() - std::chrono::seconds(10));
-  }
+private:
+  void start_accept();
+
+  void start_tick();
 
 private:
   net::io_context ioc;
   net::basic_waitable_timer<Clock> tick_timer;
   tcp::acceptor acpr;
+  Session * pendingSession;
 };
 
 } // namespace tmshell

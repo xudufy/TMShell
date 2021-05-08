@@ -8,21 +8,17 @@
 
 namespace tmshell {
 
-std::unordered_map<std::string, std::vector<std::string>> BuiltinFunc::funcMap;
-std::mutex BuiltinFunc::initMutex;
+const std::unordered_map<std::string, std::vector<std::string>> BuiltinFunc::funcMap{
+  {"alert", {"void", "string"}},
+  {"log", {"void", "string"}},
+  {"signal", {"bool","string"}},
+  {"shell_open", {"bool", "string"}},
+  {"run", {"bool", "string"}},
+  {"disconnect", {"bool"}},
+  {"return", {"void"}},
+};
 
-BuiltinFunc::BuiltinFunc(LoggedBaseVisitor * e):env(e){
-  std::lock_guard<std::mutex> lock(initMutex);
-  if (funcMap.size() == 0) {
-    funcMap.insert({"alert", {"void", "string"}});
-    funcMap.insert({"log", {"void", "string"}});
-    funcMap.insert({"signal", {"bool","string"}});
-    funcMap.insert({"shell_open", {"bool", "string"}});
-    funcMap.insert({"run", {"bool", "string"}});
-    funcMap.insert({"disconnect", {"bool"}});
-    funcMap.insert({"return", {"void"}});
-  }
-}
+BuiltinFunc::BuiltinFunc(LoggedBaseVisitor * e):env(e){}
 
 std::unique_ptr<IVariableValue> BuiltinFunc::call(std::string const & funcName, std::vector<IVariableValue *> const & args, bool checkOnly) {
   if (funcMap.count(funcName) == 0) {
@@ -109,21 +105,21 @@ VoidValue BuiltinFunc::log(const std::string & msg) {
 
 BoolValue BuiltinFunc::signal(const std::string & name) {
   EventStorage & es = EventStorage::getInstance();
-  std::vector<std::string> actions;
+  std::vector<StringEvent> events;
   es.lock();
   for (auto it: es.str_events) {
-    actions.push_back(it.action);
+    events.push_back(it);
   }
   es.unlock();
 
-  if (actions.size() == 0) {
+  if (events.size() == 0) {
     env->addLog("signal " + name + " does not connect to any actions.");
   }
 
   bool allSuccess = true;
-  for (auto action: actions) {
+  for (auto ev:events) {
     try {
-      runAction(action);
+      runAction(ev.action, ev.unique_id);
     } catch (ExecutionError const & e) {
       env->addLog(e.what());
       allSuccess = false;
@@ -161,7 +157,19 @@ BoolValue BuiltinFunc::run(const std::string & path) {
 }
 
 BoolValue BuiltinFunc::disconnect() {
-  //TODO
+  auto * actionExe = dynamic_cast<ActionExecutor *>(env);
+  if (actionExe != nullptr) {
+    int index = actionExe->event_id;
+
+    auto& ev_s = EventStorage::getInstance();
+    ev_s.lock();
+
+    ev_s.str_events.remove_if([index](const StringEvent & se) {return se.unique_id == index;});
+    ev_s.tm_events.remove_if([index](const TimerEvent & se) {return se.unique_id == index;});
+    
+    ev_s.unlock();
+    
+  }
   return true;
 }
 

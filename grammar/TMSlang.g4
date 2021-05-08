@@ -18,7 +18,7 @@ cmd_arg : StringLiteral #QuotedArg
 varDef : LET ID '=' expr #SessionVarDef
       | LET GLOBAL ID '=' expr # GlobalVarDef
       ;
-triggerDef : signal=expr (POUND trigger_name=cmd_arg)? RIGHTARROW action+=expr (';' action+=expr)* ;
+triggerDef : signal=expr (POUND trigger_name=cmd_arg)? RIGHTARROW action=expr;
 expr: '-' expr #NegExpr
     | '!' expr #NotExpr
     | expr op=('*' | '/') expr # MulExpr

@@ -4,6 +4,12 @@ namespace tmshell {
 
 using var_t = std::unique_ptr<IVariableValue>;
 
+TypeChecker::TypeChecker():builtinCom(this) {}
+
+TypeChecker::TypeChecker(RegisterExecutor & reuse_session):builtinCom(this) {
+  defaultScope = reuse_session.defaultScope; // make a copy.
+}
+
 antlrcpp::Any TypeChecker::visitProgram(TMSlangParser::ProgramContext *context){
   return visitChildren(context);
 }
@@ -77,10 +83,8 @@ antlrcpp::Any TypeChecker::visitTriggerDef(TMSlangParser::TriggerDefContext *con
     pop_stack();
   }
   scope = actionScope;
-  for (auto expr: context->action) {
-    expr->accept(this);
-    pop_stack();
-  }
+  context->action->accept(this);
+  pop_stack();
   auto signal = pop_stack();
   if (!in(signal->getTypeName(), {"string", "time_point", "periodic"})) {
     error(context, "signal type invalid");

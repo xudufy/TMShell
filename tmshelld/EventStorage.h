@@ -2,7 +2,7 @@
 #include "../common/common.h"
 #include "VariableValue.h"
 
-
+//TODO: full thread safe.
 namespace tmshell {
 
 class IEvent {
@@ -20,10 +20,12 @@ public:
 
   virtual std::string to_string(); 
 
+  void update(TimePoint current, double scaler);  
+
   TimePoint nextTriggerTime;
-  bool haveRepeat;
-  TimePoint startTime, endTime;
-  Duration period;
+  bool haveRepeat = false;
+  TimePoint startTime, endTime = TimePoint::max();
+  Duration period = std::chrono::seconds(1);
 
 };
 
@@ -55,18 +57,20 @@ public:
   }
 
   void lock() {
-    objlock.lock();
+    objmtx.lock();
   }
 
   void unlock() {
-    objlock.unlock();
+    objmtx.unlock();
   }
+
+  void updateAllEvents(TimePoint current, double scaler);
 
 public:
   std::list<StringEvent> str_events;
   std::list<TimerEvent> tm_events;
   std::list<TimerEvent> immediate_events;
-  std::mutex objlock;
+  std::mutex objmtx;
   
 private:
   std::atomic<int> next_unique_id = 1;

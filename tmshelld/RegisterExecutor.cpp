@@ -1,4 +1,7 @@
 #include "RegisterExecutor.h"
+#include "EventStorage.h"
+#include "InternalClock.h"
+#include "TypeChecker.h"
 
 namespace tmshell {
 
@@ -9,8 +12,13 @@ std::string runRegister(std::string const & input, RegisterExecutor *reuse) {
     throw ExecutionError(parser.getLastError());
   }
 
-  TypeChecker tcker;
-  tree->accept(&tcker);
+  if (!reuse) {
+    TypeChecker tcker;
+    tree->accept(&tcker);
+  } else {
+    TypeChecker tcker(*reuse);
+    tree->accept(&tcker);
+  }
 
   if (reuse != nullptr) {
     reuse->log.clear(); // clear the output of last run.
@@ -26,6 +34,8 @@ std::string runRegister(std::string const & input, RegisterExecutor *reuse) {
 
 using var_t = std::unique_ptr<IVariableValue>;
 
+using var_t = std::unique_ptr<IVariableValue>;
+
 antlrcpp::Any RegisterExecutor::visitProgram(TMSlangParser::ProgramContext *context){
   return visitChildren(context);
 }
@@ -37,7 +47,17 @@ antlrcpp::Any RegisterExecutor::visitExecute_line(TMSlangParser::Execute_lineCon
 }
 
 antlrcpp::Any RegisterExecutor::visitMgmt_command(TMSlangParser::Mgmt_commandContext *context) {
+  size_t arg_count = context->args.size();
   visitChildren(context);
+  std::vector<std::string> args;
+  args.resize(arg_count);
+  for (size_t i=arg_count; i-- >0;) {
+    auto v = pop_stack();
+    auto strv = dynamic_cast<StringValue *>(v.get())->get();
+    args[i] = strv;
+  }
+  std::string cmd_name = dynamic_cast<StringValue *>(pop_stack().get())->get();
+  builtinCom.call(cmd_name, args);
   return nullptr;
 }
 
@@ -56,6 +76,13 @@ antlrcpp::Any RegisterExecutor::visitPlainArg(TMSlangParser::PlainArgContext *co
 
 antlrcpp::Any RegisterExecutor::visitSessionVarDef(TMSlangParser::SessionVarDefContext *context) { 
   visitChildren(context);
+  auto v = pop_stack();
+  try {
+    scope.addSymbol(context->ID()->getText(), *v);
+  } catch (ExecutionError const & e) {
+    error(context, e);
+  }
+  push_stack_v();
   return nullptr;
 }
 
@@ -76,7 +103,58 @@ inline static bool in(std::string const & input, std::vector<std::string> const 
 }
 
 antlrcpp::Any RegisterExecutor::visitTriggerDef(TMSlangParser::TriggerDefContext *context) {
-  visitChildren(context);
+  context->signal->accept(this);
+  auto sig = pop_stack();
+  auto sigt = sig->getTypeName();
+  
+  std::string triggerName="<unnamed>";
+  if (context->trigger_name!=nullptr) {
+    context->trigger_name->accept(this);
+    auto name = pop_stack();
+    triggerName = iv_get<std::string>(*name);
+  }
+
+  auto & ev_s = EventStorage::getInstance();
+  if (sigt == "string") {
+    StringEvent se;
+    se.signal = iv_get<std::string>(*sig);
+    se.name = triggerName;
+    se.action = getText(context->action); 
+    se.unique_id = ev_s.get_unique_id();
+    std::lock_guard<std::mutex> lock(ev_s.objmtx);
+    ev_s.str_events.push_back(se);
+  } else if (sigt == "time_point") {
+    TimerEvent te;
+    te.name = triggerName;
+    te.unique_id = ev_s.get_unique_id();
+    te.action = getText(context->action);
+    te.haveRepeat = false;
+    te.startTime = iv_get<TimePoint>(*sig);
+    te.nextTriggerTime = te.startTime;
+    std::lock_guard<std::mutex> lock(ev_s.objmtx);
+    if (context->signal->getText() == "<.>"){
+      ev_s.immediate_events.push_back(te);
+    } else {
+      ev_s.tm_events.push_back(te);
+    }
+  } else if (sigt == "periodic") {
+    TimerEvent te;
+    te.name = triggerName;
+    te.unique_id = ev_s.get_unique_id();
+    te.action = getText(context->action);
+    te.haveRepeat = true;
+    auto sigr = dynamic_cast<StructValue *>(sig.get());
+    te.startTime = iv_get<TimePoint>(sigr->getField("start"));
+    te.endTime = iv_get<TimePoint>(sigr->getField("end"));
+    te.period = iv_get<Duration>(sigr->getField("period"));
+    
+    std::lock_guard<std::mutex> lock(InternalClock::getInstance().objmtx);
+    std::lock_guard<std::mutex> lock2(ev_s.objmtx);
+    te.update(InternalClock::getInstance().getLastTickPlayTime(), 
+            InternalClock::getInstance().getScaler());
+    ev_s.tm_events.push_back(te);
+  } 
+
   return nullptr;
 }
 
@@ -357,9 +435,11 @@ antlrcpp::Any RegisterExecutor::visitAssignExpr(TMSlangParser::AssignExprContext
 
 antlrcpp::Any RegisterExecutor::visitGroupExpr(TMSlangParser::GroupExprContext *context) {  
   visitChildren(context);
+  auto ret = pop_stack();
   for (int i=0; i < context->inner.size()-1; i++) {
     pop_stack();
   }
+  push_stack(*ret);
   return  nullptr;
 }
 
@@ -426,7 +506,7 @@ antlrcpp::Any RegisterExecutor::visitCallExpr(TMSlangParser::CallExprContext *co
     argv[i] = std::move(pop_stack());
     in_argv[i] = argv[i].get();
   }
-  auto out = builtinFuncCtx.call(context->ID()->getText(), in_argv, true);
+  auto out = builtinFuncCtx.call(context->ID()->getText(), in_argv);
   push_stack(*out);
   return nullptr;
 }

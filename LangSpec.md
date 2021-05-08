@@ -122,13 +122,12 @@ speed <Integer> // 1000 for 1x, 1500 for 1.5x, etc.
 reset time
 
 //info retrival
-ls signal
 ls event
 ls global //global variable
 
 //removal
-remove signal <signal index>
-remove event <trigger index>
+remove signal <string signal>
+remove event <event index>
 
 //execute a file of TimeMachine Code
 run <file path>

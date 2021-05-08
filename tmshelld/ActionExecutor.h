@@ -8,11 +8,15 @@
 namespace tmshell {
 
 //out: return the log of this run;
-std::string runAction(std::string const & action);
+std::string runAction(std::string const & action, int ev_id = -1);
 
 class ActionExecutor : public BaseExecutor {
 public:
-  friend std::string runAction(std::string const &);
+  int event_id;
+  
+  explicit ActionExecutor(int ev_id = -1) {event_id = ev_id;}
+
+  friend std::string runAction(std::string const &, int);
 
   virtual antlrcpp::Any visitProgram(TMSlangParser::ProgramContext *context);
 

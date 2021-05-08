@@ -7,7 +7,7 @@ set(CXX_STANDARD 14)
 
 add_compile_options(/MD /MP /W4 /wd4458 /wd4996 /wd4251) # We will always link to Release Mode dynamic msvcrt.
 
-add_definitions(-DTEST_SERVER) 
+# add_definitions(-DTEST_SERVER) 
 
 #for antlr 4 cpp runtime
 set(ANTLR_PATH ${CMAKE_CURRENT_SOURCE_DIR}/3rdParty/antlr)

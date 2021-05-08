@@ -3,7 +3,7 @@
 #include "LoggedBaseVisitor.h"
 #include "VariableValue.h"
 #include "ScopeManager.h"
-#include "TypeChecker.h"
+#include "BuiltinCommand.h"
 namespace tmshell {
 
 class RegisterExecutor;
@@ -11,8 +11,15 @@ class RegisterExecutor;
 std::string runRegister(std::string const & input, RegisterExecutor *session_env = nullptr);
 
 class RegisterExecutor : public BaseExecutor {  
+private:
+  BuiltinCommand builtinCom;
+
 public:
+  RegisterExecutor():builtinCom(this) {}
+  
   friend std::string runRegister(std::string const &,  RegisterExecutor *);
+  
+  friend class TypeChecker;
   
   virtual antlrcpp::Any visitProgram(TMSlangParser::ProgramContext *context);
 

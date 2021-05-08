@@ -5,24 +5,23 @@
 #include "ExecutionError.h"
 #include "WindowsSubsys.h"
 #include "RegisterExecutor.h"
+#include "InternalClock.h"
+#include "EventStorage.h"
+
 
 namespace tmshell {
 
-std::unordered_map<std::string, int> BuiltinCommand::commandMap;
-std::mutex BuiltinCommand::initMutex;
+const std::unordered_map<std::string, int> BuiltinCommand::commandMap{
+  {"jump", 1},
+  {"speed", 1},
+  {"reset", 1},
+  {"ls", 1},
+  {"remove", 2},
+  {"run", 1},
+  {"signal", 1},
+};
 
-BuiltinCommand::BuiltinCommand(BaseExecutor * e):env(e){
-  std::lock_guard<std::mutex> lock(initMutex);
-  if (commandMap.size() == 0) {
-    commandMap.insert({"jump", 1});
-    commandMap.insert({"speed", 1});
-    commandMap.insert({"reset", 1});
-    commandMap.insert({"ls", 1});
-    commandMap.insert({"remove", 2});
-    commandMap.insert({"run", 1});
-    commandMap.insert({"signal", 1});
-  }
-}
+BuiltinCommand::BuiltinCommand(BaseExecutor * e):env(e){}
 
 void BuiltinCommand::call(std::string const & funcName, std::vector<std::string> const & args, bool checkOnly) {
   if (commandMap.count(funcName) == 0) {
@@ -76,7 +75,7 @@ void BuiltinCommand::jump(const std::vector<std::string> & args, bool checkOnly)
   if (checkOnly) return;
 
   auto value = dynamic_cast<TimePointValue *>(value_ptr)->get();
-  //TODO
+  InternalClock::getInstance().setTime(value);
 }
 
 void BuiltinCommand::speed(const std::vector<std::string> & args, bool checkOnly) {
@@ -89,9 +88,13 @@ void BuiltinCommand::speed(const std::vector<std::string> & args, bool checkOnly
   } catch (std::exception const &) {
     throw ExecutionError("speed <int>:" + args[0] + "is not int." );
   }
+
+  if (scale == 0 || scale>10 || scale<-10) {
+    throw ExecutionError("speed <int>:" + args[0] + "0, <-10000, > 10000 is forbidden.");
+  }
   
   if (checkOnly) return;
-  //TODO
+  InternalClock::getInstance().setScaler(scale);
 
 }
 
@@ -101,7 +104,7 @@ void BuiltinCommand::reset(const std::vector<std::string> & args, bool checkOnly
   }
 
   if (checkOnly) return;
-  //TODO
+  InternalClock::getInstance().reset();
 }
 
 void BuiltinCommand::remove(const std::vector<std::string> & args, bool checkOnly) {
@@ -110,24 +113,56 @@ void BuiltinCommand::remove(const std::vector<std::string> & args, bool checkOnl
   }
 
   size_t index;
-  try {
-    std::stringstream ss(args[1]);
-    ss>>index;
-  } catch (std::exception const &) {
-    throw ExecutionError("usage: remove [signal | event] <int>" );
+  if (args[0] == "event") {
+    try {
+      std::stringstream ss(args[1]);
+      ss>>index;
+    } catch (std::exception const &) {
+      throw ExecutionError("usage: remove [signal | event] <int>" );
+    }
   }
   
   if (checkOnly) return;
-  //TODO
+  
+  auto& ev_s = EventStorage::getInstance();
+  ev_s.lock();
+  if (args[0] == "signal") {
+    ev_s.str_events.remove_if([&args](const StringEvent & se) {return se.signal == args[1];});
+  } else if (args[0] == "event") {
+    ev_s.str_events.remove_if([index](const StringEvent & se) {return se.unique_id == index;});
+    ev_s.tm_events.remove_if([index](const TimerEvent & se) {return se.unique_id == index;});
+  }
+  ev_s.unlock();
+  
 }
 
 void BuiltinCommand::ls(const std::vector<std::string> & args, bool checkOnly) {
-  if (args[0] != "signal" && args[0] != "event" && args[0] != "global") {
+  if (args[0] != "event" && args[0] != "global") {
     throw ExecutionError("usage: ls [signal | event | global]");
   }
 
   if (checkOnly) return;
-  //TODO
+  if (args[0] == "event") {
+    auto& ev_s = EventStorage::getInstance();
+    ev_s.lock();
+    for (auto item : ev_s.str_events) {
+      env->addLog(item.to_string());
+    }
+    for (auto item : ev_s.tm_events) {
+      env->addLog(item.to_string());
+    }
+    ev_s.unlock();
+    return;
+  }
+
+  if (args[0] == "global") {
+    auto& gs = GlobalScope::getInstance();
+    gs.lock();
+    env->addLog(gs.to_string());
+    gs.unlock(); 
+  }
+
+
 }
 
 void BuiltinCommand::run(const std::vector<std::string> & args, bool checkOnly) {

@@ -171,8 +171,7 @@ public:
   public:
     TMSlangParser::ExprContext *signal = nullptr;
     TMSlangParser::Cmd_argContext *trigger_name = nullptr;
-    TMSlangParser::ExprContext *exprContext = nullptr;
-    std::vector<ExprContext *> action;
+    TMSlangParser::ExprContext *action = nullptr;
     TriggerDefContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *RIGHTARROW();
