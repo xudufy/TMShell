@@ -196,4 +196,4 @@ expr = expr '+' expr
 1. Duration/int (devision) is forbidden.
 1. equal is defined by `to_string(lhs) == to_string(rhs) && type(lhs) == type(rhs)`. It is sound and complete as long as no custom struct support.
 1. short cut for `||` and `&&` is implemented.
-1. bug when COLON command lines used in file modes.
+1. [*Fixed*]bug when COLON command lines used in file modes.
