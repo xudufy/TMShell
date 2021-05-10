@@ -139,10 +139,9 @@ signal <String signal>
 ### Built-in method
 These methods are provided for the `action`.
 ```java
-alert()
 signal(<string signal>) //trigger a string signal
 shell_open(<filePath>) //double fork and run a program
-msgbox(<any thing>) // pop up a msgbox for output some info.
+alert(<any thing>) // pop up a msgbox for output some info.
 log(<any thing>) // write something to log. Default behaviour: write to console.
 run(<filePath>) // run another TimeMachine script.
 disconnect() //remove this action from this signal.
