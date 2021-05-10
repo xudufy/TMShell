@@ -6,7 +6,21 @@ let global g_dr = [<.> @ 10s @ >>15m]
 :ls global
 
 :ls event
-"google" ]] shell_open("https://www.google.com")
-"spotify" ]] shell_open("C:\\Users\\Public\\Desktop\\网易云音乐.lnk")
-:signal spotify
+g_tm + 5s => alert("welcome to Time Machine Shell!")
+
+"google" => shell_open("https://www.google.com")
+"music" => shell_open("C:\\Users\\Public\\Desktop\\网易云音乐.lnk")
+"steam" => shell_open("C:\\Users\\Public\\Desktop\\Steam.lnk")
+"work" => {
+  shell_open("https://canvas.wpi.edu");
+  shell_open("https://outlook.com");
+  shell_open("code");
+}
+
+"relax" => {
+  signal("music");
+  signal("steam");
+}
+
+:signal google
 

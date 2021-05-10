@@ -108,7 +108,7 @@ BoolValue BuiltinFunc::signal(const std::string & name) {
   std::vector<StringEvent> events;
   es.lock();
   for (auto it: es.str_events) {
-    events.push_back(it);
+    if (it.signal == name) events.push_back(it);
   }
   es.unlock();
 

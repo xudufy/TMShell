@@ -117,6 +117,7 @@ void InternalClock::tick(){
       out = runAction(actions[i], uids[i]);
     } catch (ExecutionError const & e) {
       out = e.what();
+      out += "\n";
     }
 #ifdef TMSHELLD_OUTPUT_TO_CONSOLE
     std::cout << out << std::endl;

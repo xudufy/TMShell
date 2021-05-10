@@ -26,6 +26,7 @@ void Session::read_handler(error_code const &e, std::size_t /*length*/) {
     out = runRegister(in, &run_env);
   } catch (ExecutionError const & e) {
     out = e.what();
+    out += "\n";
   }
 
   const std::string* const_out = new const std::string(out);
