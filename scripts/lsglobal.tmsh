@@ -1,12 +1,13 @@
 let sess_1 = 1
-let global g_2 = 2
+let global g_2 = 18:00
 let global g_tm = <.>
 let global g_dr = [<.> @ 10s @ >>15m]
 
 :ls global
 
-:ls event
 g_tm + 5s => alert("welcome to Time Machine Shell!")
+
+<.> => alert(<.> + " welcome!")
 
 "google" => shell_open("https://www.google.com")
 "music" => shell_open("C:\\Users\\Public\\Desktop\\网易云音乐.lnk")
