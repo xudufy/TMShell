@@ -21,6 +21,7 @@ varDef : LET ID '=' expr #SessionVarDef
 triggerDef : signal=expr (POUND trigger_name=cmd_arg)? RIGHTARROW action=expr;
 expr: '-' expr #NegExpr
     | '!' expr #NotExpr
+    | '>>' expr #LaterExpr
     | expr op=('*' | '/') expr # MulExpr
     | expr op=('+'|'-') expr # AddExpr
     | expr op=('<' | '>' |'<=' | '>=') expr # RelExpr
@@ -33,7 +34,6 @@ expr: '-' expr #NegExpr
     | ID '(' (args+=expr (',' args+=expr) *)? ')' # CallExpr
     | LEFTBRACE  (inner+=expr (';' inner+=expr)*)? ';'? RIGHTBRACE # GroupExpr
     | ID # IDExpr
-    | '>>' expr #LaterExpr
     | '<.>' #CurrentExpr
     | '(' expr ')' #ParanExpr
     | IF '('cond=expr')' then=expr (ELSE epart=expr)? # IfExpr

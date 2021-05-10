@@ -305,10 +305,26 @@ antlrcpp::Any ActionExecutor::visitAddExpr(TMSlangParser::AddExprContext *contex
 
   if (v1t == v2t && (v1t=="int" || v1t=="duration")) {
     if (v1t == "int") {
-      push_stack_v(iv_get<int>(*v1) + iv_get<int>(*v2));
+      if (op == "-") {
+        push_stack_v(iv_get<int>(*v1) - iv_get<int>(*v2));
+      } else {
+        push_stack_v(iv_get<int>(*v1) + iv_get<int>(*v2));
+      } 
     } else if (v1t == "duration") {
-      push_stack_v(iv_get<Duration>(*v1) + iv_get<Duration>(*v2));
+      if (op == "-") {
+        push_stack_v(iv_get<Duration>(*v1) - iv_get<Duration>(*v2));
+      } else {
+        push_stack_v(iv_get<Duration>(*v1) + iv_get<Duration>(*v2));
+      }
     }
+  } else if (v1t == "time_point" && v2t == "duration"){
+      if (op == "-") {
+        push_stack_v(iv_get<TimePoint>(*v1) - iv_get<Duration>(*v2));
+      } else {
+        push_stack_v(iv_get<TimePoint>(*v1) + iv_get<Duration>(*v2));
+      }
+  } else if (v1t == "duration" && v2t == "time_point" && op == "+") {
+    push_stack_v(iv_get<Duration>(*v1) + iv_get<TimePoint>(*v2));
   } else {
     error(context, "Addexpr type error");
   }

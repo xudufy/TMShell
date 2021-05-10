@@ -261,7 +261,11 @@ antlrcpp::Any TypeChecker::visitAddExpr(TMSlangParser::AddExprContext *context) 
   }
 
   if (v1t == v2t && (v1t=="int" || v1t=="duration")) {
-    // pass
+    //pass
+  } else if (v1t == "time_point" && v2t == "duration"){
+    //pass
+  } else if (v1t == "duration" && v2t == "time_point" && op == "+") {
+    //pass
   } else {
     error(context, "Addexpr type error");
   }

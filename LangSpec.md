@@ -1,7 +1,7 @@
 # TimeMachine Shell
 
 ## Background
-Sometimes, I feel it is very laborate to set up an item in my to-do list on the computer, especially when I need to set up the time point just several minutes later. In order to set the correct time in that situation, one needs to know the current time, do a calculation in mind, and input the entire hours/minutes for the target time point. I want to change that experience to just type in:
+Sometimes, I feel it is very laboring to set up an item in my to-do list on the computer, especially when I need to set up the time point just several minutes later. In order to set the correct time in that situation, one needs to know the current time, do a calculation in mind, and input the entire hours/minutes for the target time point. I want to change that experience to just type in:
 ```
  >>15m # turn off the oven => alarm 
 ```
