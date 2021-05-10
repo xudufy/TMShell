@@ -204,7 +204,7 @@ expr: '-' expr                                              #NegExpr
 ```
 
 ## Log
-1. Anything can be implicitly transfrom to string. All other type casting are forbidden.
+1. Any type can be implicitly cast to String in function calls, or in an “+” operation with another string. All other type casting are forbidden.
 1. Duration/int (division) is forbidden.
 1. equal is defined by `to_string(lhs) == to_string(rhs) && type(lhs) == type(rhs)`. It is sound and complete as long as no custom struct support.
 1. short cut for `||` and `&&` is implemented.
